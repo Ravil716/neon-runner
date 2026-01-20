@@ -5,6 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Neon Runner</title>
     <link rel="stylesheet" href="style.css" />
+
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script>
+    // Сообщаем Телеграму, что приложение готово и его нужно развернуть
+    window.Telegram.WebApp.ready();
+    window.Telegram.WebApp.expand();
+    
+    // Покрасим шапку Телеграма в черный цвет, чтобы сливалась с игрой
+    window.Telegram.WebApp.setHeaderColor('#000000'); 
+    window.Telegram.WebApp.setBackgroundColor('#000000');
+</script>
+<style>
+    /* Убираем скролл и выделение текста для телефонов */
+    body {
+        overflow: hidden; 
+        user-select: none;
+        -webkit-user-select: none;
+        touch-action: none;
+    }
+</style>
+
   </head>
   <body>
     <div class="page-wrapper">
