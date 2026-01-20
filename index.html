@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Neon Runner</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="page-wrapper">
+      <div class="game-shell">
+        <header class="game-header">
+          <h1 class="game-title">Neon Runner</h1>
+          <div class="hud-right">
+            <div class="score-display">
+              <span class="score-label">Score</span>
+              <span id="scoreValue">0</span>
+            </div>
+            <div class="coin-display" title="Coins (сохраняются)">
+              <span class="coin-icon" aria-hidden="true"></span>
+              <span id="coinValue">0</span>
+            </div>
+          </div>
+        </header>
+
+        <main class="game-main">
+          <canvas id="gameCanvas"></canvas>
+
+          <div id="gameOverOverlay" class="overlay hidden">
+            <div class="overlay-content">
+              <h2>Game Over</h2>
+              <p class="final-score">
+                Ваш счёт: <span id="finalScoreValue">0</span>
+              </p>
+              <p class="final-coins">
+                Собрано за раунд: <span id="roundCoinsValue">0</span>
+              </p>
+              <p class="final-coins">
+                Всего монет: <span id="totalCoinsValue">0</span>
+              </p>
+              <button id="restartButton" class="btn-primary">Restart</button>
+              <p class="hint">Нажмите пробел или тапните, чтобы прыгать</p>
+            </div>
+          </div>
+
+          <div id="tapHint" class="tap-hint">
+            Нажмите пробел или тапните, чтобы начать
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
+
