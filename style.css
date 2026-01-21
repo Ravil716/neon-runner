@@ -405,33 +405,118 @@ body {
   margin-top: 8px;
 }
 
-/* small screens */
+/* =========================================
+   АДАПТАЦИЯ ПОД МОБИЛЬНЫЕ (TELEGRAM)
+   Вставь это в конец файла style.css, заменив старые медиа-запросы
+========================================= */
+
+/* Базовая адаптация для планшетов и небольших ноутбуков */
 @media (max-width: 768px) {
   .game-shell {
-    border-radius: 20px;
-    padding: 12px;
-  }
-
-  .game-main {
     border-radius: 16px;
+    padding: 10px; /* Уменьшаем отступ контейнера */
   }
-
-  .leaderboard-table {
-    min-width: 320px;
+  .game-header {
+    margin-bottom: 4px; /* Прижимаем шапку ближе к игре */
+  }
+  .game-title {
+    font-size: 16px; /* Уменьшаем заголовок */
   }
 }
 
-@media (max-height: 540px) and (orientation: landscape) {
+/* Агрессивная адаптация для телефонов (узкие экраны) - РЕШАЕТ ТВОИ ПРОБЛЕМЫ */
+@media (max-width: 480px) {
+  /* 1. Исправление обрезания шапки справа (Image 21) */
   .page-wrapper {
-    padding: 6px;
+    /* Убираем лишние боковые отступы на мобилках, оставляем только безопасные зоны */
+    padding: max(4px, env(safe-area-inset-top)) max(4px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(4px, env(safe-area-inset-left));
   }
 
-  .game-shell {
-    max-width: 100%;
-    aspect-ratio: 18 / 9;
+  .hud-right {
+    gap: 4px; /* Сжимаем расстояние между элементами справа */
   }
 
+  .score-display,
+  .coin-display {
+    padding: 2px 6px; /* Уменьшаем "пухлость" плашек счета */
+  }
+
+  .score-label {
+    display: none; /* Скрываем слово "SCORE" на мобилках для экономии места, оставляем только цифры */
+  }
+
+  #scoreValue,
+  #coinValue {
+    font-size: 13px; /* Уменьшаем цифры */
+  }
+
+  .leaderboard-btn {
+    width: 28px;
+    height: 28px;
+    font-size: 14px; /* Уменьшаем кнопку кубка */
+  }
+
+  /* 2. Исправление подсказки "Нажмите пробел" (Image 20) */
   .tap-hint {
-    bottom: 8%;
+    bottom: 30%; /* Поднимаем подсказку гораздо выше от пола */
+    font-size: 9px; /* Уменьшаем шрифт */
+    padding: 4px 10px;
+    opacity: 0.8; /* Делаем её менее навязчивой */
+    width: max-content; /* Чтобы не растягивалась */
+  }
+
+  /* 3. Исправление окна Game Over (Image 22) */
+  .overlay-content {
+    padding: 16px 12px; /* Уменьшаем внутренние отступы окна */
+    width: 95%; /* Разрешаем окну быть почти во всю ширину */
+    max-width: none;
+  }
+
+  .overlay-content h2 {
+    font-size: 20px; /* Уменьшаем заголовок Game Over */
+    margin-bottom: 10px;
+  }
+
+  .final-score {
+    font-size: 13px;
+    margin-bottom: 10px;
+    /* Фикс от перелома текста: */
+    white-space: nowrap; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+  }
+
+  .final-score span#finalScoreValue {
+    font-size: 24px; /* Чуть уменьшаем огромную цифру счета */
+  }
+
+  .final-coins {
+    font-size: 11px;
+    margin-bottom: 8px;
+  }
+  
+  .btn-primary {
+      padding: 8px 20px; /* Чуть компактнее кнопка */
+      font-size: 12px;
+  }
+}
+
+/* Исправление для ландшафтного режима на телефонах (чтобы не было слишком узко по высоте) */
+@media (max-height: 500px) and (orientation: landscape) {
+  .page-wrapper {
+    padding: 2px;
+  }
+  .game-shell {
+    aspect-ratio: auto; /* Отключаем строгие 16:9 */
+    height: 100%; /* Растягиваем на всю высоту */
+    border-radius: 0; /* Убираем скругления для полного погружения */
+  }
+  .game-header {
+      display: none; /* В горизонтальном режиме на телефоне лучше скрыть шапку, чтобы было место для игры */
+  }
+  .tap-hint {
+      bottom: 20%;
   }
 }
