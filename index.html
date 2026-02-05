@@ -1,119 +1,142 @@
 <!DOCTYPE html>
 <html lang="ru">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Neon Runner</title>
+    <link rel="stylesheet" href="style.css" />
 
-  <title>Neon Runner</title>
-  <link rel="stylesheet" href="style.css" />
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+    // Сообщаем Телеграму, что приложение готово и его нужно развернуть
+    window.Telegram.WebApp.ready();
+    window.Telegram.WebApp.expand();
+    
+    // Покрасим шапку Телеграма в черный цвет, чтобы сливалась с игрой
+    window.Telegram.WebApp.setHeaderColor('#000000'); 
+    window.Telegram.WebApp.setBackgroundColor('#000000');
+</script>
+<style>
+    /* Убираем скролл и выделение текста для телефонов */
+    body {
+        overflow: hidden; 
+        user-select: none;
+        -webkit-user-select: none;
+        touch-action: none;
+    }
+</style>
 
-  <!-- Telegram WebApp API -->
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-</head>
-
-<body>
-  <div class="page-wrapper">
-    <div class="game-shell">
-
-      <header class="game-header">
-        <h1 class="game-title">Neon Runner</h1>
-
-        <div class="hud-right">
-          <div class="score-display">
-            <span class="score-label">Score</span>
-            <span id="scoreValue" aria-live="polite">0</span>
-          </div>
-
-          <div class="coin-display" title="Coins (сохраняются)">
-            <span class="coin-icon" aria-hidden="true"></span>
-            <span id="coinValue" aria-live="polite">0</span>
-          </div>
-
-          <!-- Leaderboard button -->
-          <button id="leaderboardButton" class="leaderboard-btn" title="Leaderboard" aria-haspopup="dialog" aria-controls="leaderboardModal">
+  </head>
+  <body>
+    <div class="page-wrapper">
+      <div class="game-shell">
+        <header class="game-header">
+          <h1 class="game-title">Neon Runner</h1>
+          <div class="hud-right">
+            <div class="score-display">
+              <span class="score-label">Score</span>
+              <span id="scoreValue">0</span>
+            </div>
+            <div class="coin-display" title="Coins (сохраняются)">
+              <span class="coin-icon" aria-hidden="true"></span>
+              <span id="coinValue">0</span>
+            </div>
+            <button id="bankButton" class="bank-button" type="button" title="Купить монеты">
+              +
+            </button>
+            <button id="shopButton" class="icon-button" type="button" title="Магазин скинов">
+              🛒
+            </button>
+          <button id="leaderboardButton" class="icon-button" type="button" title="Leaderboard">
             🏆
           </button>
-        </div>
-      </header>
+        </header>
 
-      <main class="game-main">
-        <canvas id="gameCanvas"></canvas>
+        <main class="game-main">
+          <canvas id="gameCanvas"></canvas>
 
-        <!-- Game Over Overlay -->
-        <div id="gameOverOverlay" class="overlay hidden" role="dialog" aria-modal="true">
-          <div class="overlay-content">
-            <h2>Game Over</h2>
-
-            <p class="final-score">
-              Ваш счёт: <span id="finalScoreValue">0</span>
-            </p>
-
-            <p class="final-coins">
-              Собрано за раунд: <span id="roundCoinsValue">0</span>
-            </p>
-
-            <p class="final-coins">
-              Всего монет: <span id="totalCoinsValue">0</span>
-            </p>
-
-            <button id="restartButton" class="btn-primary" type="button">
-              Restart
-            </button>
-
-            <p class="hint">Нажмите пробел или тапните, чтобы прыгать</p>
-          </div>
-        </div>
-
-        <!-- Leaderboard Modal (hidden by default) -->
-        <div id="leaderboardModal" class="overlay hidden leaderboard-modal" role="dialog" aria-modal="true" aria-labelledby="leaderboardTitle">
-          <div class="overlay-content leaderboard-content" role="document">
-            <h2 id="leaderboardTitle">LEADERBOARD</h2>
-
-            <div class="leaderboard-table-wrap">
-              <table id="leaderboardTable" class="leaderboard-table" role="table" aria-describedby="leaderboardDesc">
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>Очки</th>
-                    <th>Дата</th>
-                  </tr>
-                </thead>
-                <tbody id="leaderboardBody">
-                  <!-- Filled dynamically -->
-                </tbody>
-              </table>
-            </div>
-
-            <div class="leaderboard-actions">
-              <button id="closeLeaderboardBtn" class="btn-primary" type="button">Close</button>
+          <div id="gameOverOverlay" class="overlay hidden">
+            <div class="overlay-content">
+              <h2>Game Over</h2>
+              <p class="final-score">
+                Ваш счёт: <span id="finalScoreValue">0</span>
+              </p>
+              <p class="final-coins">
+                Собрано за раунд: <span id="roundCoinsValue">0</span>
+              </p>
+              <p class="final-coins">
+                Всего монет: <span id="totalCoinsValue">0</span>
+              </p>
+              <button id="restartButton" class="btn-primary">Restart</button>
+              <p class="hint">Нажмите пробел или тапните, чтобы прыгать</p>
             </div>
           </div>
-        </div>
 
-        <!-- Start Hint -->
-        <div id="tapHint" class="tap-hint">
-          Нажмите пробел или тапните, чтобы начать
-        </div>
-      </main>
+          <div id="shopOverlay" class="overlay hidden">
+            <div class="overlay-content shop-content">
+              <div class="shop-header-row">
+                <h2>Магазин скинов</h2>
+                <button id="shopCloseButton" class="icon-button icon-button--ghost" type="button" aria-label="Закрыть магазин">
+                  ✕
+                </button>
+              </div>
+              <p class="shop-subtitle">
+                Тратьте неоновые монеты на уникальные облики куба
+              </p>
+              <div id="shopGrid" class="shop-grid"></div>
+            </div>
+          </div>
+
+          <div id="bankOverlay" class="overlay hidden">
+            <div class="overlay-content bank-content">
+              <div class="shop-header-row">
+                <h2>Bank</h2>
+                <button id="bankCloseButton" class="icon-button icon-button--ghost" type="button" aria-label="Закрыть банк">
+                  ✕
+                </button>
+              </div>
+              <p class="shop-subtitle">
+                Купите монеты за Telegram Stars ⭐
+              </p>
+              <div id="bankGrid" class="bank-grid"></div>
+            </div>
+          </div>
+
+          <div id="tapHint" class="tap-hint">
+            Нажмите пробел или тапните, чтобы начать
+          </div>
+
+          <div id="leaderboardOverlay" class="overlay hidden">
+            <div class="overlay-content leaderboard-content">
+              <div class="shop-header-row">
+                <h2>Leaderboard</h2>
+                <button id="leaderboardCloseButton" class="icon-button icon-button--ghost" type="button" aria-label="Закрыть лидерборд">
+                  ✕
+                </button>
+              </div>
+              <div class="leaderboard-container">
+                <table class="leaderboard-table">
+                  <thead>
+                    <tr>
+                      <th>Place</th>
+                      <th>Username</th>
+                      <th>Score</th>
+                    </tr>
+                  </thead>
+                  <tbody id="leaderboardBody">
+                    <!-- Will be populated by JS -->
+                  </tbody>
+                </table>
+                <div class="loading-indicator" id="leaderboardLoading">Loading...</div>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
     </div>
-  </div>
 
-  <!-- Основной скрипт -->
-  <script src="script.js"></script>
-
-  <!-- Инициализация Telegram WebApp -->
-  <script>
-    if (window.Telegram && window.Telegram.WebApp) {
-      const tg = window.Telegram.WebApp;
-
-      tg.ready();
-      tg.expand();
-
-      // Цвета под стиль игры
-      tg.setHeaderColor('#000000');
-      tg.setBackgroundColor('#000000');
-    }
-  </script>
-</body>
+    <script src="script.js"></script>
+  </body>
 </html>
+
