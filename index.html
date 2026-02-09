@@ -2,13 +2,14 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+  />
 
   <title>Neon Runner</title>
   <link rel="stylesheet" href="style.css" />
 
-  <!-- Telegram WebApp API -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 
@@ -22,27 +23,24 @@
         <div class="hud-right">
           <div class="score-display">
             <span class="score-label">Score</span>
-            <span id="scoreValue" aria-live="polite">0</span>
+            <span id="scoreValue">0</span>
           </div>
 
-          <div class="coin-display" title="Coins (сохраняются)">
-            <span class="coin-icon" aria-hidden="true"></span>
-            <span id="coinValue" aria-live="polite">0</span>
+          <div class="coin-display">
+            <span class="coin-icon"></span>
+            <span id="coinValue">0</span>
           </div>
 
-          <!-- Leaderboard button -->
-          <button id="leaderboardButton" class="leaderboard-btn" title="Leaderboard" aria-haspopup="dialog" aria-controls="leaderboardModal">
-            🏆
-          </button>
+          <button id="leaderboardButton" class="leaderboard-btn">🏆</button>
         </div>
       </header>
 
       <main class="game-main">
         <canvas id="gameCanvas"></canvas>
 
-        <!-- Game Over Overlay -->
-        <div id="gameOverOverlay" class="overlay hidden" role="dialog" aria-modal="true">
-          <div class="overlay-content">
+        <!-- Game Over -->
+        <div id="gameOverOverlay" class="overlay hidden">
+          <div class="overlay-content scrollable">
             <h2>Game Over</h2>
 
             <p class="final-score">
@@ -57,21 +55,19 @@
               Всего монет: <span id="totalCoinsValue">0</span>
             </p>
 
-            <button id="restartButton" class="btn-primary" type="button">
-              Restart
-            </button>
+            <button id="restartButton" class="btn-primary">Restart</button>
 
-            <p class="hint">Нажмите пробел или тапните, чтобы прыгать</p>
+            <p class="hint">Тапните, чтобы прыгать</p>
           </div>
         </div>
 
-        <!-- Leaderboard Modal (hidden by default) -->
-        <div id="leaderboardModal" class="overlay hidden leaderboard-modal" role="dialog" aria-modal="true" aria-labelledby="leaderboardTitle">
-          <div class="overlay-content leaderboard-content" role="document">
-            <h2 id="leaderboardTitle">LEADERBOARD</h2>
+        <!-- Leaderboard -->
+        <div id="leaderboardModal" class="overlay hidden leaderboard-modal">
+          <div class="overlay-content scrollable">
+            <h2>Leaderboard</h2>
 
             <div class="leaderboard-table-wrap">
-              <table id="leaderboardTable" class="leaderboard-table" role="table" aria-describedby="leaderboardDesc">
+              <table class="leaderboard-table">
                 <thead>
                   <tr>
                     <th>#</th>
@@ -79,38 +75,28 @@
                     <th>Дата</th>
                   </tr>
                 </thead>
-                <tbody id="leaderboardBody">
-                  <!-- Filled dynamically -->
-                </tbody>
+                <tbody id="leaderboardBody"></tbody>
               </table>
             </div>
 
-            <div class="leaderboard-actions">
-              <button id="closeLeaderboardBtn" class="btn-primary" type="button">Close</button>
-            </div>
+            <button id="closeLeaderboardBtn" class="btn-primary">Close</button>
           </div>
         </div>
 
-        <!-- Start Hint -->
         <div id="tapHint" class="tap-hint">
-          Нажмите пробел или тапните, чтобы начать
+          Тапните, чтобы начать
         </div>
       </main>
     </div>
   </div>
 
-  <!-- Основной скрипт -->
   <script src="script.js"></script>
 
-  <!-- Инициализация Telegram WebApp -->
   <script>
-    if (window.Telegram && window.Telegram.WebApp) {
+    if (window.Telegram?.WebApp) {
       const tg = window.Telegram.WebApp;
-
       tg.ready();
       tg.expand();
-
-      // Цвета под стиль игры
       tg.setHeaderColor('#000000');
       tg.setBackgroundColor('#000000');
     }
