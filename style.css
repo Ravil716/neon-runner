@@ -32,7 +32,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  /* Базовые отступы + учет челки/вырезов */
+  /* Базовые безопасные отступы для всех устройств */
   padding:
     max(12px, env(safe-area-inset-top))
     max(12px, env(safe-area-inset-right))
@@ -44,6 +44,7 @@ body {
   position: relative;
   width: 100%;
   max-width: 960px;
+  /* Соотношение сторон по умолчанию для ПК и планшетов */
   aspect-ratio: 16 / 9;
   border-radius: 24px;
   padding: 16px;
@@ -676,15 +677,14 @@ body {
   }
 }
 
-/* НОВЫЙ БЛОК АДАПТАЦИИ 
-   Мы добавляем принудительный отступ сверху (30-40px) + безопасную зону
-   для ВСЕХ мобильных устройств (ширина < 900px), чтобы верхний бар Telegram
-   не перекрывал игру.
-*/
+/* ========================================================
+   ИСПРАВЛЕНИЕ АДАПТАЦИИ (TELEGRAM OVERLAY FIX)
+======================================================== */
+
 @media (max-width: 900px) {
   .page-wrapper {
-    /* Гарантированный сдвиг игры вниз на ~40px */
-    padding-top: calc(40px + env(safe-area-inset-top));
+    /* Добавляем базовый безопасный отступ для всех мобильных */
+    padding-top: calc(20px + env(safe-area-inset-top));
   }
 }
 
@@ -699,26 +699,39 @@ body {
   }
 }
 
-/* Исправление для ГОРИЗОНТАЛЬНОГО режима на телефонах */
+/* СПЕЦИАЛЬНЫЙ FIX ДЛЯ ГОРИЗОНТАЛЬНОГО РЕЖИМА НА ТЕЛЕФОНАХ */
 @media (max-height: 540px) and (orientation: landscape) {
   .page-wrapper {
-    /* Было 6px, что убирало отступ и поднимало игру под интерфейс.
-       Теперь мы восстанавливаем отступ, чтобы игра "спустилась".
+    /* 1. Принудительно задаем большой отступ сверху (32px), 
+         чтобы игра гарантированно опустилась ниже плашки Telegram.
+      2. Обнуляем нижний отступ, чтобы дать место контенту.
     */
-    padding-top: max(24px, env(safe-area-inset-top));
-    padding-bottom: 4px;
+    padding-top: calc(32px + env(safe-area-inset-top));
+    padding-bottom: 2px;
     padding-left: max(12px, env(safe-area-inset-left));
     padding-right: max(12px, env(safe-area-inset-right));
+    
+    /* Прижимаем игру к низу, если есть лишнее место */
+    align-items: flex-end; 
   }
 
   .game-shell {
-    max-width: 100%;
-    /* Если экран очень узкий, разрешаем авто-пропорцию, чтобы не плющило */
-    aspect-ratio: auto;
+    /* Разрешаем игре занимать всю доступную высоту (за вычетом нашего padding-top),
+       но убираем фиксированное соотношение 16/9, чтобы она не "распирала" экран 
+       и не уходила за пределы видимости.
+    */
     height: 100%;
+    width: auto;
+    max-width: 100%;
+    aspect-ratio: auto;
+  }
+
+  .game-header {
+    /* Чуть компактнее шапка в горизонте */
+    margin-bottom: 4px;
   }
 
   .tap-hint {
-    bottom: 8%;
+    bottom: 15%;
   }
 }
