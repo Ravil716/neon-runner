@@ -4,11 +4,14 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  -webkit-tap-highlight-color: transparent;
 }
 
 html,
 body {
   height: 100%;
+  overscroll-behavior: none;
+  touch-action: none;
 }
 
 body {
@@ -20,6 +23,7 @@ body {
   align-items: center;
   justify-content: center;
   -webkit-font-smoothing: antialiased;
+  -webkit-overflow-scrolling: auto;
 }
 
 .page-wrapper {
@@ -28,13 +32,19 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 12px;
+  /* Базовые безопасные отступы */
+  padding:
+    max(12px, env(safe-area-inset-top))
+    max(12px, env(safe-area-inset-right))
+    max(12px, env(safe-area-inset-bottom))
+    max(12px, env(safe-area-inset-left));
 }
 
 .game-shell {
   position: relative;
   width: 100%;
   max-width: 960px;
+  /* Пропорции по умолчанию для ПК/Вертикали */
   aspect-ratio: 16 / 9;
   border-radius: 24px;
   padding: 16px;
@@ -55,6 +65,7 @@ body {
   justify-content: space-between;
   margin-bottom: 8px;
   padding-inline: 4px;
+  z-index: 10;
 }
 
 .hud-right {
@@ -146,35 +157,14 @@ body {
     0 0 14px rgba(50, 255, 50, 0.8),
     0 0 24px rgba(0, 255, 0, 0.6);
   animation: bankPulse 2s ease-in-out infinite;
-  transition:
-    transform 0.14s ease,
-    box-shadow 0.14s ease,
-    filter 0.14s ease;
+  transition: transform 0.14s ease, box-shadow 0.14s ease, filter 0.14s ease;
 }
-
-.bank-button:hover {
-  transform: scale(1.1);
-  filter: brightness(1.15);
-}
-
-.bank-button:active {
-  transform: scale(0.95);
-  box-shadow:
-    0 0 10px rgba(50, 255, 50, 0.7),
-    0 0 18px rgba(0, 255, 0, 0.5);
-}
+.bank-button:hover { transform: scale(1.1); filter: brightness(1.15); }
+.bank-button:active { transform: scale(0.95); }
 
 @keyframes bankPulse {
-  0%, 100% {
-    box-shadow:
-      0 0 14px rgba(50, 255, 50, 0.8),
-      0 0 24px rgba(0, 255, 0, 0.6);
-  }
-  50% {
-    box-shadow:
-      0 0 20px rgba(50, 255, 50, 1),
-      0 0 32px rgba(0, 255, 0, 0.8);
-  }
+  0%, 100% { box-shadow: 0 0 14px rgba(50, 255, 50, 0.8), 0 0 24px rgba(0, 255, 0, 0.6); }
+  50% { box-shadow: 0 0 20px rgba(50, 255, 50, 1), 0 0 32px rgba(0, 255, 0, 0.8); }
 }
 
 .icon-button {
@@ -190,28 +180,11 @@ body {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow:
-    0 0 12px rgba(0, 255, 255, 0.7),
-    0 0 22px rgba(255, 0, 189, 0.5);
-  transition:
-    transform 0.14s ease,
-    box-shadow 0.14s ease,
-    filter 0.14s ease,
-    border-color 0.14s ease;
+  box-shadow: 0 0 12px rgba(0, 255, 255, 0.7), 0 0 22px rgba(255, 0, 189, 0.5);
+  transition: transform 0.14s ease, box-shadow 0.14s ease, filter 0.14s ease;
 }
-
-.icon-button:hover {
-  transform: translateY(-0.5px);
-  filter: brightness(1.06);
-  border-color: rgba(255, 255, 255, 0.9);
-}
-
-.icon-button:active {
-  transform: translateY(1px) scale(0.97);
-  box-shadow:
-    0 0 8px rgba(0, 255, 255, 0.7),
-    0 0 16px rgba(255, 0, 189, 0.5);
-}
+.icon-button:hover { transform: translateY(-0.5px); filter: brightness(1.06); border-color: rgba(255, 255, 255, 0.9); }
+.icon-button:active { transform: translateY(1px) scale(0.97); }
 
 .icon-button--ghost {
   min-width: 30px;
@@ -251,13 +224,9 @@ body {
   align-items: center;
   justify-content: center;
   background: radial-gradient(circle at center, rgba(0, 0, 0, 0.82), rgba(0, 0, 0, 0.96));
-  z-index: 2;
+  z-index: 20;
 }
-
-.overlay.hidden {
-  opacity: 0;
-  pointer-events: none;
-}
+.overlay.hidden { opacity: 0; pointer-events: none; }
 
 .overlay-content {
   text-align: center;
@@ -265,431 +234,150 @@ body {
   border-radius: 20px;
   background: linear-gradient(145deg, rgba(6, 15, 31, 0.9), rgba(11, 5, 24, 0.94));
   border: 1px solid rgba(0, 255, 255, 0.55);
-  box-shadow:
-    0 0 26px rgba(0, 255, 255, 0.5),
-    0 0 48px rgba(255, 0, 189, 0.4);
+  box-shadow: 0 0 26px rgba(0, 255, 255, 0.5), 0 0 48px rgba(255, 0, 189, 0.4);
   max-width: min(360px, 90vw);
 }
 
-.shop-content {
-  text-align: left;
-  max-width: min(520px, 94vw);
-}
+/* Shop & Bank Styles (Condensed) */
+.shop-content, .bank-content { text-align: left; max-width: min(520px, 94vw); }
+.shop-header-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+.shop-subtitle { font-size: 12px; color: rgba(203, 233, 255, 0.88); margin-bottom: 14px; }
+.shop-grid, .bank-grid { display: grid; gap: 12px; padding-right: 4px; overflow-y: auto; }
+.shop-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); max-height: min(360px, 54vh); }
+.bank-grid { grid-template-columns: repeat(1, minmax(0, 1fr)); max-height: min(400px, 60vh); }
 
-.shop-header-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 6px;
-}
-
-.shop-subtitle {
-  font-size: 12px;
-  color: rgba(203, 233, 255, 0.88);
-  margin-bottom: 14px;
-}
-
-.shop-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-  max-height: min(360px, 54vh);
-  padding-right: 4px;
-  overflow-y: auto;
-}
-
-.skin-card {
-  position: relative;
-  padding: 10px 10px 12px;
-  border-radius: 14px;
+.skin-card, .bank-card {
+  position: relative; padding: 10px; border-radius: 14px;
   background: radial-gradient(circle at 0 0, rgba(12, 30, 54, 0.9), rgba(6, 8, 20, 0.96));
   border: 1px solid rgba(84, 255, 255, 0.26);
-  box-shadow:
-    0 0 16px rgba(0, 255, 255, 0.35),
-    0 0 24px rgba(255, 0, 189, 0.26);
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+  display: flex; flex-direction: column; gap: 6px;
 }
+.bank-card { border-color: rgba(255, 215, 0, 0.5); }
+.skin-card__header, .bank-card__header { display: flex; justify-content: space-between; align-items: center; }
+.skin-card__name, .bank-card__name { font-size: 13px; font-weight: 600; color: #e8f7ff; }
+.bank-card__name { color: #fff8dc; }
+.skin-card__badge, .bank-card__badge { font-size: 10px; padding: 2px 6px; border-radius: 999px; border: 1px solid rgba(84,255,255,0.7); color: rgba(197,244,255,0.96); }
+.bank-card__badge { border-color: rgba(255,215,0,0.8); color: rgba(255,248,220,0.96); background: rgba(255,215,0,0.2); }
 
-.skin-card__header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 6px;
-}
-
-.skin-card__name {
-  font-size: 13px;
-  font-weight: 600;
-  color: #e8f7ff;
-}
-
-.skin-card__badge {
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.16em;
-  padding: 2px 6px;
-  border-radius: 999px;
-  border: 1px solid rgba(84, 255, 255, 0.7);
-  color: rgba(197, 244, 255, 0.96);
-}
-
-.skin-card__preview {
-  margin-top: 4px;
-  margin-bottom: 4px;
-  width: 100%;
-  aspect-ratio: 5 / 3;
-  border-radius: 10px;
+.skin-card__preview, .bank-card__preview {
+  width: 100%; aspect-ratio: 5 / 3; border-radius: 10px;
   border: 1px solid rgba(9, 21, 40, 0.9);
-  box-shadow:
-    0 0 10px rgba(0, 255, 255, 0.6),
-    0 0 16px rgba(255, 0, 189, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 20px;
+  display: flex; align-items: center; justify-content: center; font-size: 20px;
 }
+.bank-card__preview { aspect-ratio: 4/1; background: radial-gradient(circle, rgba(255,215,0,0.3), rgba(139,69,19,0.1)); border-color: rgba(255,215,0,0.4); font-size: 32px; }
 
-.skin-card__meta {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 6px;
-}
+.skin-card__meta, .bank-card__meta { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+.skin-card__price, .bank-card__price { font-size: 11px; color: rgba(214, 236, 255, 0.92); }
+.skin-card__price strong, .bank-card__price strong { color: #ffd600; }
 
-.skin-card__price {
-  font-size: 11px;
-  color: rgba(214, 236, 255, 0.92);
+.skin-card__action, .bank-card__action {
+  padding: 6px 10px; border-radius: 999px; border: none; font-size: 11px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 4px;
 }
+.skin-card__action--buy { background: linear-gradient(135deg, #ffd600, #ff9f1c); color: #1a0b00; }
+.skin-card__action--need { background: rgba(120, 130, 145, 0.5); color: rgba(230, 238, 248, 0.9); cursor: default; }
+.skin-card__action--equip { background: linear-gradient(135deg, #54ffff, #4e9fff); color: #021218; }
+.skin-card__action--equipped { background: linear-gradient(135deg, #32ff7e, #0fb9b1); color: #01130d; cursor: default; }
+.bank-card__action { background: linear-gradient(135deg, #32cd32, #228b22); color: #fff; padding: 8px 14px; font-size: 12px; }
 
-.skin-card__price strong {
-  font-variant-numeric: tabular-nums;
-  color: #ffd600;
-}
-
-.skin-card__action {
-  padding: 6px 10px;
-  border-radius: 999px;
-  border: none;
-  font-size: 11px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  font-weight: 600;
-  cursor: pointer;
-  white-space: nowrap;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-}
-
-.skin-card__action--buy {
-  background: linear-gradient(135deg, #ffd600, #ff9f1c);
-  color: #1a0b00;
-  box-shadow:
-    0 0 14px rgba(255, 214, 0, 0.9),
-    0 0 26px rgba(255, 153, 0, 0.7);
-}
-
-.skin-card__action--need {
-  background: rgba(120, 130, 145, 0.5);
-  color: rgba(230, 238, 248, 0.9);
-  cursor: default;
-}
-
-.skin-card__action--equip {
-  background: linear-gradient(135deg, #54ffff, #4e9fff);
-  color: #021218;
-  box-shadow:
-    0 0 12px rgba(0, 255, 255, 0.7),
-    0 0 18px rgba(0, 128, 255, 0.6);
-}
-
-.skin-card__action--equipped {
-  background: linear-gradient(135deg, #32ff7e, #0fb9b1);
-  color: #01130d;
-  box-shadow:
-    0 0 12px rgba(50, 255, 126, 0.9),
-    0 0 18px rgba(15, 185, 177, 0.7);
-  cursor: default;
-}
-
-.skin-card--owned {
-  border-color: rgba(120, 248, 255, 0.8);
-}
-
-.skin-card--equipped {
-  box-shadow:
-    0 0 18px rgba(50, 255, 126, 0.6),
-    0 0 30px rgba(0, 255, 255, 0.6);
-}
-
-.bank-content {
-  text-align: left;
-  max-width: min(520px, 94vw);
-}
-
-.bank-grid {
-  display: grid;
-  grid-template-columns: repeat(1, minmax(0, 1fr));
-  gap: 14px;
-  max-height: min(400px, 60vh);
-  padding-right: 4px;
-  overflow-y: auto;
-}
-
-.bank-card {
-  position: relative;
-  padding: 14px 14px 16px;
-  border-radius: 16px;
-  background: radial-gradient(circle at 0 0, rgba(255, 215, 0, 0.18), rgba(139, 69, 19, 0.3), rgba(6, 8, 20, 0.96));
-  border: 1px solid rgba(255, 215, 0, 0.5);
-  box-shadow:
-    0 0 20px rgba(255, 215, 0, 0.4),
-    0 0 32px rgba(255, 165, 0, 0.3);
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.bank-card__header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 8px;
-}
-
-.bank-card__name {
-  font-size: 15px;
-  font-weight: 700;
-  color: #fff8dc;
-  text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
-}
-
-.bank-card__badge {
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.16em;
-  padding: 3px 8px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 215, 0, 0.8);
-  color: rgba(255, 248, 220, 0.96);
-  background: rgba(255, 215, 0, 0.2);
-}
-
-.bank-card__preview {
-  margin-top: 6px;
-  margin-bottom: 6px;
-  width: 100%;
-  aspect-ratio: 4 / 1;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 215, 0, 0.4);
-  box-shadow:
-    0 0 12px rgba(255, 215, 0, 0.6),
-    inset 0 0 20px rgba(255, 215, 0, 0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 32px;
-  background: radial-gradient(circle at center, rgba(255, 215, 0, 0.3), rgba(139, 69, 19, 0.1));
-}
-
-.bank-card__meta {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-.bank-card__price {
-  font-size: 12px;
-  color: rgba(255, 248, 220, 0.92);
-}
-
-.bank-card__price strong {
-  font-variant-numeric: tabular-nums;
-  color: #ffd700;
-  text-shadow: 0 0 10px rgba(255, 215, 0, 0.9);
-}
-
-.bank-card__action {
-  padding: 8px 14px;
-  border-radius: 999px;
-  border: none;
-  font-size: 12px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  font-weight: 700;
-  cursor: pointer;
-  white-space: nowrap;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  background: linear-gradient(135deg, #32cd32, #228b22);
-  color: #ffffff;
-  box-shadow:
-    0 0 16px rgba(50, 205, 50, 0.8),
-    0 0 28px rgba(34, 139, 34, 0.6);
-  transition:
-    transform 0.14s ease,
-    box-shadow 0.14s ease,
-    filter 0.14s ease;
-}
-
-.bank-card__action:hover {
-  transform: translateY(-1px) scale(1.02);
-  filter: brightness(1.1);
-}
-
-.bank-card__action:active {
-  transform: translateY(1px) scale(0.98);
-  box-shadow:
-    0 0 10px rgba(50, 205, 50, 0.7),
-    0 0 20px rgba(34, 139, 34, 0.5);
-}
-
-.overlay-content h2 {
-  font-size: clamp(22px, 4vw, 28px);
-  margin-bottom: 8px;
-  color: #ff4ee9;
-  text-shadow:
-    0 0 16px rgba(255, 0, 189, 0.9),
-    0 0 32px rgba(0, 255, 255, 0.7);
-}
-
-.final-score {
-  margin-bottom: 16px;
-  font-size: 15px;
-  color: #e0f7ff;
-}
-
-.final-score span {
-  font-variant-numeric: tabular-nums;
-  color: #54ffff;
-  text-shadow: 0 0 15px rgba(0, 255, 255, 1);
-}
-
-.final-coins {
-  margin-top: -8px;
-  margin-bottom: 12px;
-  font-size: 13px;
-  color: rgba(255, 244, 210, 0.92);
-}
-
-.final-coins span {
-  font-variant-numeric: tabular-nums;
-  color: #ffd600;
-  text-shadow: 0 0 15px rgba(255, 214, 0, 0.9);
-}
-
-.btn-primary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10px 22px;
-  border-radius: 999px;
-  border: none;
-  cursor: pointer;
-  outline: none;
-  font-weight: 600;
-  font-size: 14px;
-  text-transform: uppercase;
-  letter-spacing: 0.16em;
-  color: #020510;
-  background: linear-gradient(135deg, #54ffff, #ff4ee9);
-  box-shadow:
-    0 0 16px rgba(0, 255, 255, 0.85),
-    0 0 32px rgba(255, 0, 189, 0.85);
-  transition:
-    transform 0.16s ease,
-    box-shadow 0.16s ease,
-    filter 0.16s ease;
-}
-
-.btn-primary:hover {
-  transform: translateY(-1px) scale(1.02);
-  filter: brightness(1.08);
-}
-
-.btn-primary:active {
-  transform: translateY(1px) scale(0.98);
-  box-shadow:
-    0 0 10px rgba(0, 255, 255, 0.7),
-    0 0 20px rgba(255, 0, 189, 0.7);
-}
-
-.hint {
-  margin-top: 10px;
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.16em;
-  color: rgba(199, 225, 250, 0.85);
-}
+/* Game Over Styles */
+.overlay-content h2 { font-size: clamp(22px, 4vw, 28px); margin-bottom: 8px; color: #ff4ee9; text-shadow: 0 0 16px rgba(255, 0, 189, 0.9); }
+.final-score { margin-bottom: 16px; font-size: 15px; color: #e0f7ff; }
+.final-score span { color: #54ffff; text-shadow: 0 0 15px rgba(0, 255, 255, 1); }
+.final-coins { font-size: 13px; color: rgba(255, 244, 210, 0.92); }
+.final-coins span { color: #ffd600; text-shadow: 0 0 15px rgba(255, 214, 0, 0.9); }
+.btn-primary { padding: 10px 22px; border-radius: 999px; border: none; cursor: pointer; font-weight: 600; font-size: 14px; text-transform: uppercase; color: #020510; background: linear-gradient(135deg, #54ffff, #ff4ee9); box-shadow: 0 0 16px rgba(0, 255, 255, 0.85); transition: transform 0.16s ease; }
+.btn-primary:hover { transform: translateY(-1px) scale(1.02); }
+.btn-primary:active { transform: translateY(1px) scale(0.98); }
 
 .tap-hint {
-  position: absolute;
-  left: 50%;
-  bottom: 12%;
-  transform: translateX(-50%);
-  padding: 6px 14px;
-  border-radius: 999px;
-  font-size: 11px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: rgba(214, 244, 255, 0.9);
-  background: rgba(4, 178, 255, 0.14);
-  border: 1px solid rgba(0, 255, 255, 0.6);
-  box-shadow: 0 0 16px rgba(0, 255, 255, 0.9);
-  pointer-events: none;
-  animation: pulse 1.7s ease-in-out infinite;
-  z-index: 1;
+  position: absolute; left: 50%; bottom: 12%; transform: translateX(-50%);
+  padding: 6px 14px; border-radius: 999px; font-size: 11px; text-transform: uppercase; color: rgba(214, 244, 255, 0.9);
+  background: rgba(4, 178, 255, 0.14); border: 1px solid rgba(0, 255, 255, 0.6);
+  pointer-events: none; animation: pulse 1.7s ease-in-out infinite; z-index: 1;
+}
+.tap-hint.hidden { display: none; }
+@keyframes pulse { 0% { opacity: 0.9; transform: translateX(-50%) translateY(0); } 50% { opacity: 1; transform: translateX(-50%) translateY(-4px); } 100% { opacity: 0.7; transform: translateX(-50%) translateY(0); } }
+
+/* ========================================================
+   LANDSCAPE MOBILE FIX (REBALANCE)
+======================================================== */
+
+@media (max-width: 900px) {
+  .page-wrapper { padding-top: calc(20px + env(safe-area-inset-top)); }
 }
 
-.tap-hint.hidden {
-  display: none;
-}
-
-@keyframes pulse {
-  0% {
-    transform: translateX(-50%) translateY(0);
-    opacity: 0.9;
-  }
-  50% {
-    transform: translateX(-50%) translateY(-4px);
-    opacity: 1;
-  }
-  100% {
-    transform: translateX(-50%) translateY(0);
-    opacity: 0.7;
-  }
-}
-
-@media (max-width: 768px) {
-  .game-shell {
-    border-radius: 20px;
-    padding: 12px;
-  }
-
-  .game-main {
-    border-radius: 16px;
-  }
-}
-
-@media (max-height: 540px) and (orientation: landscape) {
+/* Для горизонтального режима на телефонах:
+   1. Сбрасываем лишние отступы, чтобы игра была во весь экран.
+   2. Шапка "парит" сверху, но элементы УВЕЛИЧЕНЫ.
+   3. Отступ сверху минимальный, чтобы только не перекрывать игру плашкой.
+*/
+@media (max-height: 600px) and (orientation: landscape) {
   .page-wrapper {
-    padding: 6px;
+    /* Минимальный отступ сверху для Telegram плашки (~24px + вырез) */
+    padding-top: calc(24px + env(safe-area-inset-top));
+    padding-bottom: 0;
+    padding-left: max(4px, env(safe-area-inset-left));
+    padding-right: max(4px, env(safe-area-inset-right));
   }
 
   .game-shell {
-    max-width: 100%;
-    aspect-ratio: 18 / 9;
+    width: 100%; height: 100%; max-width: none;
+    aspect-ratio: unset; /* Отключаем пропорции, растягиваем на весь экран */
+    padding: 0; border-radius: 0; border: none;
+  }
+  
+  .game-main { border-radius: 0; }
+
+  .game-header {
+    /* Парящая шапка */
+    position: absolute;
+    top: 8px; left: 12px; right: 12px;
+    z-index: 10;
+    margin-bottom: 0;
+    pointer-events: none; /* Клики сквозь пустоту */
   }
 
-  .tap-hint {
-    bottom: 8%;
+  .game-header > * { pointer-events: auto; }
+
+  /* === МАСШТАБИРОВАНИЕ ИНТЕРФЕЙСА ДЛЯ ГОРИЗОНТА === */
+  
+  /* Увеличиваем заголовок */
+  .game-title {
+    font-size: 20px; 
+    padding: 4px 10px;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+    border-radius: 12px;
+    margin-right: auto;
   }
+
+  /* Увеличиваем плашки счета и монет */
+  .score-display, .coin-display {
+    padding: 6px 14px;
+    border-radius: 999px;
+  }
+  .score-label { display: none; } /* Скрываем лейбл, оставляем только цифры для компактности */
+  
+  #scoreValue, #coinValue {
+    font-size: 18px; /* Крупные цифры */
+    font-weight: 700;
+  }
+
+  /* Увеличиваем иконки монет */
+  .coin-icon { width: 18px; height: 18px; }
+
+  /* Увеличиваем кнопки управления */
+  .hud-right { gap: 8px; }
+  
+  .icon-button {
+    min-width: 42px; height: 42px; /* Крупные кнопки */
+    font-size: 20px;
+  }
+  
+  .bank-button {
+    min-width: 36px; height: 36px;
+    font-size: 22px;
+  }
+
+  .tap-hint { bottom: 15%; font-size: 12px; }
 }
-
