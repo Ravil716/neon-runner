@@ -32,6 +32,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  /* Базовые безопасные отступы для вертикального режима */
   padding:
     max(12px, env(safe-area-inset-top))
     max(12px, env(safe-area-inset-right))
@@ -43,14 +44,20 @@ body {
   position: relative;
   width: 100%;
   max-width: 960px;
+  /* Всегда держим кинематографичные пропорции 16:9, чтобы не было искажений */
   aspect-ratio: 16 / 9;
+  
+  /* Игра не должна вылезать за пределы экрана */
+  max-height: 100%; 
+  
   border-radius: 24px;
   padding: 16px;
   background: linear-gradient(135deg, rgba(0, 255, 255, 0.08), rgba(255, 0, 200, 0.08));
+  
   box-shadow:
     0 0 0 1px rgba(255, 255, 255, 0.06),
-    0 0 32px rgba(0, 255, 255, 0.3),
-    0 0 64px rgba(255, 0, 200, 0.3);
+    0 0 40px rgba(0, 255, 255, 0.35),
+    0 0 80px rgba(255, 0, 200, 0.35);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
   display: flex;
@@ -63,6 +70,7 @@ body {
   justify-content: space-between;
   margin-bottom: 8px;
   padding-inline: 4px;
+  z-index: 10;
 }
 
 .hud-right {
@@ -72,7 +80,7 @@ body {
 }
 
 .game-title {
-  font-size: clamp(18px, 2.2vw, 24px);
+  font-size: clamp(16px, 2.2vw, 24px);
   text-transform: uppercase;
   letter-spacing: 0.2em;
   color: #54ffff;
@@ -135,24 +143,102 @@ body {
   text-shadow: 0 0 12px rgba(255, 214, 0, 0.85);
 }
 
-/* Leaderboard button */
-.leaderboard-btn {
+.bank-button {
+  min-width: 28px;
+  height: 28px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(50, 255, 50, 0.8);
+  background: radial-gradient(circle at 30% 30%, rgba(50, 255, 50, 0.5), rgba(0, 150, 0, 0.9));
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 36px;
-  border-radius: 10px;
-  border: 1px solid rgba(255,255,255,0.06);
-  background: linear-gradient(135deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-  color: #fff;
-  font-size: 18px;
   cursor: pointer;
-  box-shadow: 0 0 10px rgba(255, 215, 0, 0.06);
+  box-shadow:
+    0 0 14px rgba(50, 255, 50, 0.8),
+    0 0 24px rgba(0, 255, 0, 0.6);
+  animation: bankPulse 2s ease-in-out infinite;
+  transition:
+    transform 0.14s ease,
+    box-shadow 0.14s ease,
+    filter 0.14s ease;
 }
-.leaderboard-btn:hover { transform: translateY(-2px); }
 
-/* Game main */
+.bank-button:hover {
+  transform: scale(1.1);
+  filter: brightness(1.15);
+}
+
+.bank-button:active {
+  transform: scale(0.95);
+  box-shadow:
+    0 0 10px rgba(50, 255, 50, 0.7),
+    0 0 18px rgba(0, 255, 0, 0.5);
+}
+
+@keyframes bankPulse {
+  0%, 100% {
+    box-shadow:
+      0 0 14px rgba(50, 255, 50, 0.8),
+      0 0 24px rgba(0, 255, 0, 0.6);
+  }
+  50% {
+    box-shadow:
+      0 0 20px rgba(50, 255, 50, 1),
+      0 0 32px rgba(0, 255, 0, 0.8);
+  }
+}
+
+.icon-button {
+  min-width: 32px;
+  height: 32px;
+  padding: 0 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(120, 240, 255, 0.7);
+  background: radial-gradient(circle at 30% 0, rgba(84, 255, 255, 0.36), rgba(6, 16, 28, 0.96));
+  color: #e9fbff;
+  font-size: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow:
+    0 0 12px rgba(0, 255, 255, 0.7),
+    0 0 22px rgba(255, 0, 189, 0.5);
+  transition:
+    transform 0.14s ease,
+    box-shadow 0.14s ease,
+    filter 0.14s ease,
+    border-color 0.14s ease;
+}
+
+.icon-button:hover {
+  transform: translateY(-0.5px);
+  filter: brightness(1.06);
+  border-color: rgba(255, 255, 255, 0.9);
+}
+
+.icon-button:active {
+  transform: translateY(1px) scale(0.97);
+  box-shadow:
+    0 0 8px rgba(0, 255, 255, 0.7),
+    0 0 16px rgba(255, 0, 189, 0.5);
+}
+
+.icon-button--ghost {
+  min-width: 30px;
+  height: 30px;
+  font-size: 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: radial-gradient(circle at 0 0, rgba(255, 255, 255, 0.18), rgba(4, 12, 26, 0.9));
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.8);
+}
+
 .game-main {
   flex: 1;
   position: relative;
@@ -172,12 +258,8 @@ body {
   width: 100%;
   height: 100%;
   display: block;
-  image-rendering: auto;
-  transform: translateZ(0);
-  will-change: transform;
 }
 
-/* Overlay base */
 .overlay {
   position: absolute;
   inset: 0;
@@ -185,10 +267,7 @@ body {
   align-items: center;
   justify-content: center;
   background: radial-gradient(circle at center, rgba(0, 0, 0, 0.82), rgba(0, 0, 0, 0.96));
-  z-index: 2;
-
-  opacity: 1;
-  transition: opacity 0.25s ease;
+  z-index: 20;
 }
 
 .overlay.hidden {
@@ -205,10 +284,289 @@ body {
   box-shadow:
     0 0 26px rgba(0, 255, 255, 0.5),
     0 0 48px rgba(255, 0, 189, 0.4);
-  max-width: min(720px, 92vw);
+  max-width: min(360px, 90vw);
 }
 
-/* Game Over content */
+.shop-content {
+  text-align: left;
+  max-width: min(520px, 94vw);
+}
+
+.shop-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.shop-subtitle {
+  font-size: 12px;
+  color: rgba(203, 233, 255, 0.88);
+  margin-bottom: 14px;
+}
+
+.shop-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  max-height: min(360px, 54vh);
+  padding-right: 4px;
+  overflow-y: auto;
+}
+
+.skin-card {
+  position: relative;
+  padding: 10px 10px 12px;
+  border-radius: 14px;
+  background: radial-gradient(circle at 0 0, rgba(12, 30, 54, 0.9), rgba(6, 8, 20, 0.96));
+  border: 1px solid rgba(84, 255, 255, 0.26);
+  box-shadow:
+    0 0 16px rgba(0, 255, 255, 0.35),
+    0 0 24px rgba(255, 0, 189, 0.26);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.skin-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+}
+
+.skin-card__name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #e8f7ff;
+}
+
+.skin-card__badge {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  padding: 2px 6px;
+  border-radius: 999px;
+  border: 1px solid rgba(84, 255, 255, 0.7);
+  color: rgba(197, 244, 255, 0.96);
+}
+
+.skin-card__preview {
+  margin-top: 4px;
+  margin-bottom: 4px;
+  width: 100%;
+  aspect-ratio: 5 / 3;
+  border-radius: 10px;
+  border: 1px solid rgba(9, 21, 40, 0.9);
+  box-shadow:
+    0 0 10px rgba(0, 255, 255, 0.6),
+    0 0 16px rgba(255, 0, 189, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+
+.skin-card__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.skin-card__price {
+  font-size: 11px;
+  color: rgba(214, 236, 255, 0.92);
+}
+
+.skin-card__price strong {
+  font-variant-numeric: tabular-nums;
+  color: #ffd600;
+}
+
+.skin-card__action {
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: none;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.skin-card__action--buy {
+  background: linear-gradient(135deg, #ffd600, #ff9f1c);
+  color: #1a0b00;
+  box-shadow:
+    0 0 14px rgba(255, 214, 0, 0.9),
+    0 0 26px rgba(255, 153, 0, 0.7);
+}
+
+.skin-card__action--need {
+  background: rgba(120, 130, 145, 0.5);
+  color: rgba(230, 238, 248, 0.9);
+  cursor: default;
+}
+
+.skin-card__action--equip {
+  background: linear-gradient(135deg, #54ffff, #4e9fff);
+  color: #021218;
+  box-shadow:
+    0 0 12px rgba(0, 255, 255, 0.7),
+    0 0 18px rgba(0, 128, 255, 0.6);
+}
+
+.skin-card__action--equipped {
+  background: linear-gradient(135deg, #32ff7e, #0fb9b1);
+  color: #01130d;
+  box-shadow:
+    0 0 12px rgba(50, 255, 126, 0.9),
+    0 0 18px rgba(15, 185, 177, 0.7);
+  cursor: default;
+}
+
+.skin-card--owned {
+  border-color: rgba(120, 248, 255, 0.8);
+}
+
+.skin-card--equipped {
+  box-shadow:
+    0 0 18px rgba(50, 255, 126, 0.6),
+    0 0 30px rgba(0, 255, 255, 0.6);
+}
+
+.bank-content {
+  text-align: left;
+  max-width: min(520px, 94vw);
+}
+
+.bank-grid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 14px;
+  max-height: min(400px, 60vh);
+  padding-right: 4px;
+  overflow-y: auto;
+}
+
+.bank-card {
+  position: relative;
+  padding: 14px 14px 16px;
+  border-radius: 16px;
+  background: radial-gradient(circle at 0 0, rgba(255, 215, 0, 0.18), rgba(139, 69, 19, 0.3), rgba(6, 8, 20, 0.96));
+  border: 1px solid rgba(255, 215, 0, 0.5);
+  box-shadow:
+    0 0 20px rgba(255, 215, 0, 0.4),
+    0 0 32px rgba(255, 165, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.bank-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.bank-card__name {
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff8dc;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+}
+
+.bank-card__badge {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 215, 0, 0.8);
+  color: rgba(255, 248, 220, 0.96);
+  background: rgba(255, 215, 0, 0.2);
+}
+
+.bank-card__preview {
+  margin-top: 6px;
+  margin-bottom: 6px;
+  width: 100%;
+  aspect-ratio: 4 / 1;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 215, 0, 0.4);
+  box-shadow:
+    0 0 12px rgba(255, 215, 0, 0.6),
+    inset 0 0 20px rgba(255, 215, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  background: radial-gradient(circle at center, rgba(255, 215, 0, 0.3), rgba(139, 69, 19, 0.1));
+}
+
+.bank-card__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.bank-card__price {
+  font-size: 12px;
+  color: rgba(255, 248, 220, 0.92);
+}
+
+.bank-card__price strong {
+  font-variant-numeric: tabular-nums;
+  color: #ffd700;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.9);
+}
+
+.bank-card__action {
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: none;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  background: linear-gradient(135deg, #32cd32, #228b22);
+  color: #ffffff;
+  box-shadow:
+    0 0 16px rgba(50, 205, 50, 0.8),
+    0 0 28px rgba(34, 139, 34, 0.6);
+  transition:
+    transform 0.14s ease,
+    box-shadow 0.14s ease,
+    filter 0.14s ease;
+}
+
+.bank-card__action:hover {
+  transform: translateY(-1px) scale(1.02);
+  filter: brightness(1.1);
+}
+
+.bank-card__action:active {
+  transform: translateY(1px) scale(0.98);
+  box-shadow:
+    0 0 10px rgba(50, 205, 50, 0.7),
+    0 0 20px rgba(34, 139, 34, 0.5);
+}
+
 .overlay-content h2 {
   font-size: clamp(22px, 4vw, 28px);
   margin-bottom: 8px;
@@ -325,198 +683,60 @@ body {
   }
 }
 
-/* Leaderboard modal specifics */
-.leaderboard-modal .overlay-content {
-  max-width: min(520px, 94vw);
-  padding: 18px;
-  border-radius: 16px;
-  border: 1px solid rgba(255, 215, 0, 0.18);
-  box-shadow:
-    0 0 32px rgba(255, 140, 0, 0.12),
-    0 0 48px rgba(255, 80, 0, 0.08);
-}
+/* ========================================================
+   ИСПРАВЛЕНИЕ ДЛЯ ГОРИЗОНТАЛЬНОГО РЕЖИМА (LANDSCAPE)
+   Задача: опустить игру под плашку Telegram, но СОХРАНИТЬ "карточку"
+   16:9 во всю ширину/высоту без искажений и сжатия.
+======================================================== */
 
-.leaderboard-table-wrap {
-  overflow: auto;
-  margin: 12px 0 6px;
-  max-height: 360px;
-  -webkit-overflow-scrolling: touch;
-}
-
-.leaderboard-table {
-  width: 100%;
-  border-collapse: collapse;
-  min-width: 420px;
-  background: rgba(2, 6, 12, 0.55);
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.leaderboard-table thead th {
-  text-align: left;
-  padding: 10px 12px;
-  font-size: 13px;
-  color: #fff8d6;
-  border-bottom: 1px solid rgba(255,255,255,0.04);
-  letter-spacing: 0.08em;
-}
-
-.leaderboard-table tbody tr {
-  transition: background 0.12s ease, transform 0.12s ease;
-  cursor: default;
-}
-
-.leaderboard-table tbody tr:hover {
-  background: linear-gradient(90deg, rgba(255,120,0,0.06), rgba(255,20,20,0.04));
-  transform: translateY(-2px);
-}
-
-.leaderboard-table td {
-  padding: 10px 12px;
-  font-size: 14px;
-  color: rgba(230, 235, 255, 0.9);
-  border-bottom: 1px solid rgba(255,255,255,0.02);
-}
-
-.leaderboard-table .place-1 td {
-  background: linear-gradient(90deg, rgba(255, 215, 0, 0.08), rgba(255, 215, 0, 0.02));
-  color: #fff9e6;
-  box-shadow: inset 0 0 12px rgba(255, 200, 0, 0.08);
-}
-.leaderboard-table .place-2 td {
-  background: linear-gradient(90deg, rgba(220, 220, 220, 0.06), rgba(220, 220, 220, 0.01));
-  color: #f8f9fb;
-  box-shadow: inset 0 0 8px rgba(220, 220, 220, 0.06);
-}
-.leaderboard-table .place-3 td {
-  background: linear-gradient(90deg, rgba(205, 133, 63, 0.06), rgba(205, 133, 63, 0.01));
-  color: #fffaf2;
-  box-shadow: inset 0 0 8px rgba(205, 133, 63, 0.06);
-}
-
-/* highlight new record row */
-.leaderboard-table .is-new {
-  outline: 2px solid rgba(255, 170, 50, 0.28);
-  transform: translateY(-4px) scale(1.01);
-}
-
-/* actions */
-.leaderboard-actions {
-  margin-top: 8px;
-}
-
-/* =========================================
-   АДАПТАЦИЯ ПОД МОБИЛЬНЫЕ (TELEGRAM)
-   Вставь это в конец файла style.css, заменив старые медиа-запросы
-========================================= */
-
-/* Базовая адаптация для планшетов и небольших ноутбуков */
-@media (max-width: 768px) {
-  .game-shell {
-    border-radius: 16px;
-    padding: 10px; /* Уменьшаем отступ контейнера */
-  }
-  .game-header {
-    margin-bottom: 4px; /* Прижимаем шапку ближе к игре */
-  }
-  .game-title {
-    font-size: 16px; /* Уменьшаем заголовок */
-  }
-}
-
-/* Агрессивная адаптация для телефонов (узкие экраны) - РЕШАЕТ ТВОИ ПРОБЛЕМЫ */
-@media (max-width: 480px) {
-  /* 1. Исправление обрезания шапки справа (Image 21) */
+@media (max-width: 900px) {
   .page-wrapper {
-    /* Убираем лишние боковые отступы на мобилках, оставляем только безопасные зоны */
-    padding: max(4px, env(safe-area-inset-top)) max(4px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(4px, env(safe-area-inset-left));
+    /* Общий фикс для телефонов */
+    padding-top: max(24px, env(safe-area-inset-top));
+  }
+}
+
+@media (max-height: 600px) and (orientation: landscape) {
+  .page-wrapper {
+    /* 1. Верхний отступ строго 28px — это минимум, чтобы кнопка Close не налезла.
+          Мы не делаем его огромным, чтобы игра была крупной. */
+    padding-top: 28px;
+    
+    /* 2. Убираем лишние отступы снизу и сбоку для максимизации размера */
+    padding-bottom: 2px;
+    padding-left: max(4px, env(safe-area-inset-left));
+    padding-right: max(4px, env(safe-area-inset-right));
   }
 
-  .hud-right {
-    gap: 4px; /* Сжимаем расстояние между элементами справа */
-  }
-
-  .score-display,
-  .coin-display {
-    padding: 2px 6px; /* Уменьшаем "пухлость" плашек счета */
-  }
-
-  .score-label {
-    display: none; /* Скрываем слово "SCORE" на мобилках для экономии места, оставляем только цифры */
-  }
-
-  #scoreValue,
-  #coinValue {
-    font-size: 13px; /* Уменьшаем цифры */
-  }
-
-  .leaderboard-btn {
-    width: 28px;
-    height: 28px;
-    font-size: 14px; /* Уменьшаем кнопку кубка */
-  }
-
-  /* 2. Исправление подсказки "Нажмите пробел" (Image 20) */
-  .tap-hint {
-    bottom: 30%; /* Поднимаем подсказку гораздо выше от пола */
-    font-size: 9px; /* Уменьшаем шрифт */
-    padding: 4px 10px;
-    opacity: 0.8; /* Делаем её менее навязчивой */
-    width: max-content; /* Чтобы не растягивалась */
-  }
-
-  /* 3. Исправление окна Game Over (Image 22) */
-  .overlay-content {
-    padding: 16px 12px; /* Уменьшаем внутренние отступы окна */
-    width: 95%; /* Разрешаем окну быть почти во всю ширину */
-    max-width: none;
-  }
-
-  .overlay-content h2 {
-    font-size: 20px; /* Уменьшаем заголовок Game Over */
-    margin-bottom: 10px;
-  }
-
-  .final-score {
-    font-size: 13px;
-    margin-bottom: 10px;
-    /* Фикс от перелома текста: */
-    white-space: nowrap; 
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 5px;
-  }
-
-  .final-score span#finalScoreValue {
-    font-size: 24px; /* Чуть уменьшаем огромную цифру счета */
-  }
-
-  .final-coins {
-    font-size: 11px;
-    margin-bottom: 8px;
+  .game-shell {
+    /* 3. КЛЮЧЕВОЕ: Возвращаем aspect-ratio 16/9.
+          Это исправит "растянутость" и вернет качество. */
+    aspect-ratio: 16 / 9;
+    
+    /* 4. Занимаем всю доступную высоту (которая осталась после padding-top) */
+    height: 100%;
+    
+    /* Ширина подстроится автоматически, чтобы сохранить 16:9 */
+    width: auto;
+    
+    /* Но не даем ширине вылезти за экран */
+    max-width: 100%;
+    
+    /* Чуть уменьшаем внутренние отступы, чтобы сам канвас игры был крупнее */
+    padding: 8px;
+    border-radius: 16px; 
   }
   
-  .btn-primary {
-      padding: 8px 20px; /* Чуть компактнее кнопка */
-      font-size: 12px;
-  }
-}
-
-/* Исправление для ландшафтного режима на телефонах (чтобы не было слишком узко по высоте) */
-@media (max-height: 500px) and (orientation: landscape) {
-  .page-wrapper {
-    padding: 2px;
-  }
-  .game-shell {
-    aspect-ratio: auto; /* Отключаем строгие 16:9 */
-    height: 100%; /* Растягиваем на всю высоту */
-    border-radius: 0; /* Убираем скругления для полного погружения */
-  }
+  /* Компактный заголовок и кнопки для горизонтали */
   .game-header {
-      display: none; /* В горизонтальном режиме на телефоне лучше скрыть шапку, чтобы было место для игры */
+    margin-bottom: 4px;
   }
+  
+  .game-title {
+    font-size: 14px; 
+  }
+  
   .tap-hint {
-      bottom: 20%;
+    bottom: 12%;
   }
 }
