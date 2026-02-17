@@ -1196,6 +1196,7 @@ document.addEventListener("keydown", (e) => {
 });
 
 restartButton.addEventListener("click", () => {
+  closeAllOverlays();
   ensureAudio();
   resetGame();
 });
@@ -1289,10 +1290,19 @@ function renderBank() {
   });
 }
 
+function closeAllOverlays() {
+  document.querySelectorAll(".overlay").forEach((overlay) => {
+    overlay.classList.add("hidden");
+  });
+}
+
 if (shopButton && shopOverlay && shopGrid) {
-  shopButton.addEventListener("click", () => { shopOverlay.classList.remove("hidden"); renderShop(); });
-  if (shopCloseButton) shopCloseButton.addEventListener("click", () => shopOverlay.classList.add("hidden"));
-  shopOverlay.addEventListener("click", (e) => { if (e.target === shopOverlay) shopOverlay.classList.add("hidden"); });
+  shopButton.addEventListener("click", () => {
+    closeAllOverlays();
+    shopOverlay.classList.remove("hidden");
+    renderShop();
+  });
+  if (shopCloseButton) shopCloseButton.addEventListener("click", closeAllOverlays);
   shopGrid.addEventListener("click", (e) => {
     const btn = e.target.closest(".skin-card__action");
     if (!btn) return;
@@ -1323,9 +1333,12 @@ if (shopButton && shopOverlay && shopGrid) {
 }
 
 if (bankButton && bankOverlay && bankGrid) {
-  bankButton.addEventListener("click", () => { bankOverlay.classList.remove("hidden"); renderBank(); });
-  if (bankCloseButton) bankCloseButton.addEventListener("click", () => bankOverlay.classList.add("hidden"));
-  bankOverlay.addEventListener("click", (e) => { if (e.target === bankOverlay) bankOverlay.classList.add("hidden"); });
+  bankButton.addEventListener("click", () => {
+    closeAllOverlays();
+    bankOverlay.classList.remove("hidden");
+    renderBank();
+  });
+  if (bankCloseButton) bankCloseButton.addEventListener("click", closeAllOverlays);
   bankGrid.addEventListener("click", (e) => {
     const btn = e.target.closest(".bank-card__action");
     if (!btn) return;
@@ -1337,13 +1350,22 @@ if (bankButton && bankOverlay && bankGrid) {
 
 if (leaderboardBtn) {
     leaderboardBtn.addEventListener("click", () => {
+        closeAllOverlays();
         leaderboardOverlay.classList.remove("hidden");
         fetchLeaderboard();
     });
 }
 if (leaderboardCloseBtn) {
-    leaderboardCloseBtn.addEventListener("click", () => leaderboardOverlay.classList.add("hidden"));
+    leaderboardCloseBtn.addEventListener("click", closeAllOverlays);
 }
+
+document.querySelectorAll(".overlay").forEach((overlay) => {
+  overlay.addEventListener("click", (e) => {
+    if (e.target === overlay) {
+      closeAllOverlays();
+    }
+  });
+});
 
 window.addEventListener("resize", () => {
   resizeCanvas();
