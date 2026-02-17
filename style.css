@@ -740,3 +740,128 @@ body {
     bottom: 12%;
   }
 }
+
+/* Mobile full-screen overrides for Telegram Mini App */
+@media (max-width: 767px) {
+  body {
+    align-items: stretch;
+    justify-content: stretch;
+  }
+
+  .page-wrapper {
+    width: 100vw;
+    height: 100vh;
+    padding: 0;
+  }
+
+  .game-shell {
+    width: 100vw;
+    height: 100vh;
+    max-width: none;
+    max-height: none;
+    aspect-ratio: auto;
+    padding:
+      env(safe-area-inset-top)
+      env(safe-area-inset-right)
+      env(safe-area-inset-bottom)
+      env(safe-area-inset-left);
+    border-radius: 0;
+  }
+
+  .game-main {
+    border-radius: 0;
+  }
+
+  .hud-right {
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .score-display,
+  .coin-display {
+    padding: 3px 8px;
+  }
+
+  .bank-button,
+  .icon-button {
+    min-width: 32px;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 499px) and (orientation: portrait) {
+  .game-header {
+    margin-bottom: 6px;
+    padding-inline: 0;
+    gap: 6px;
+  }
+
+  .game-title {
+    display: none;
+  }
+
+  .hud-right {
+    flex-wrap: nowrap;
+    width: 100%;
+    justify-content: space-between;
+    gap: 4px;
+  }
+
+  .score-display,
+  .coin-display {
+    gap: 4px;
+    padding: 3px 6px;
+  }
+
+  .score-label {
+    letter-spacing: 0.08em;
+    font-size: 10px;
+  }
+
+  #scoreValue,
+  #coinValue {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 767px) and (orientation: landscape) {
+  .game-shell {
+    padding:
+      env(safe-area-inset-top)
+      env(safe-area-inset-right)
+      env(safe-area-inset-bottom)
+      env(safe-area-inset-left);
+  }
+
+  .game-header {
+    position: absolute;
+    top: env(safe-area-inset-top);
+    left: env(safe-area-inset-left);
+    right: env(safe-area-inset-right);
+    z-index: 15;
+    margin: 0;
+    padding: 4px 6px;
+    background: rgba(4, 8, 18, 0.35);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
+
+  .game-title {
+    display: none;
+  }
+
+  .hud-right {
+    width: 100%;
+    flex-wrap: nowrap;
+    justify-content: flex-end;
+    gap: 4px;
+  }
+
+  .game-main {
+    border-radius: 0;
+  }
+}

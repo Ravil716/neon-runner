@@ -1195,6 +1195,16 @@ document.addEventListener("keydown", (e) => {
   );
 });
 
+document.addEventListener("dblclick", (e) => {
+  e.preventDefault();
+}, { passive: false });
+
+document.addEventListener("touchstart", (e) => {
+  if (e.touches && e.touches.length > 1) {
+    e.preventDefault();
+  }
+}, { passive: false });
+
 restartButton.addEventListener("click", () => {
   closeAllOverlays();
   ensureAudio();
@@ -1360,10 +1370,17 @@ if (leaderboardCloseBtn) {
 }
 
 document.querySelectorAll(".overlay").forEach((overlay) => {
-  overlay.addEventListener("click", (e) => {
-    if (e.target === overlay) {
-      closeAllOverlays();
-    }
+  ["click", "touchstart"].forEach((eventName) => {
+    overlay.addEventListener(
+      eventName,
+      (e) => {
+        if (e.target === overlay) {
+          e.preventDefault();
+          closeAllOverlays();
+        }
+      },
+      { passive: false }
+    );
   });
 });
 
