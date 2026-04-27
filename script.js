@@ -511,19 +511,26 @@ async function purchaseCoinsPlatform(offer) {
       }
       const username = tgUser?.username || tgUser?.first_name || "Player";
 
-      // 1. Ask backend to create an invoice link
-      const res = await fetch(`${SUPABASE_URL}/functions/v1/create-invoice`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${SUPABASE_KEY}`,
-          "apikey": SUPABASE_KEY,
-        },
-        body: JSON.stringify({ productId: offer.productId, userId, username }),
-      });
+      // 1. Ask backend to create an invoice link.
+      //    Edge Functions cold-start sometimes returns 503 — retry up to 3 times.
+      let res, lastTxt = "";
+      for (let attempt = 0; attempt < 3; attempt++) {
+        res = await fetch(`${SUPABASE_URL}/functions/v1/create-invoice`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${SUPABASE_KEY}`,
+            "apikey": SUPABASE_KEY,
+          },
+          body: JSON.stringify({ productId: offer.productId, userId, username }),
+        });
+        if (res.ok) break;
+        lastTxt = await res.text().catch(() => "");
+        if (res.status !== 503 && res.status !== 502 && res.status !== 504) break;
+        await new Promise((r) => setTimeout(r, 600 * (attempt + 1))); // 0.6s, 1.2s
+      }
       if (!res.ok) {
-        const txt = await res.text();
-        throw new Error(`HTTP ${res.status}: ${txt}`);
+        throw new Error(`HTTP ${res.status}: ${lastTxt}`);
       }
       const data = await res.json();
       if (!data.invoiceUrl) throw new Error(data.error || "no invoice url");
@@ -753,6 +760,8 @@ function resizeCanvas() {
   canvas.width = width;
   canvas.height = height;
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  // After resize the canvas is auto-cleared — repaint once.
+  if (typeof render === "function") try { render(); } catch (e) {}
 }
 
 function getJumpFlightTimeSec() {
@@ -1536,12 +1545,10 @@ function gameLoop(timestamp) {
   lastTime = timestamp;
   if (gameState === "playing") {
     update(delta);
-    render();
-    rafId = requestAnimationFrame(gameLoop);
-  } else {
-    // For paused/menu/gameover we still want particles to animate gently — but keep simple:
-    rafId = requestAnimationFrame(gameLoop);
   }
+  // Always render so the canvas stays alive after resize / state change.
+  render();
+  rafId = requestAnimationFrame(gameLoop);
 }
 
 /* ============================================================
