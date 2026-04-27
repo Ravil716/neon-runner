@@ -1731,3 +1731,43 @@ body {
     margin-bottom: env(safe-area-inset-bottom, 0px);
   }
 }
+
+/* ==========================================================
+   v5 LANDSCAPE MOBILE FIX: убрать заголовок NEON RUNNER который ломает шапку
+   ========================================================== */
+
+/* Mobile landscape (iPhone, Android phones in landscape Telegram desktop) */
+@media (max-height: 500px), (max-width: 920px) and (orientation: landscape) {
+  .game-title {
+    display: none !important;
+  }
+  .game-header {
+    padding: 6px 8px !important;
+  }
+  .hud-right {
+    width: 100%;
+    flex-wrap: nowrap !important;
+    justify-content: flex-end;
+    gap: 6px;
+    align-items: center;
+  }
+  .score-display, .coin-display {
+    font-size: 12px;
+    padding: 4px 8px;
+  }
+  .icon-button, .bank-button {
+    min-width: 32px;
+    min-height: 32px;
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+}
+
+/* Telegram desktop "mini app" container that is small landscape */
+@media (max-height: 600px) {
+  .game-shell {
+    aspect-ratio: auto !important;
+    height: 100% !important;
+  }
+}

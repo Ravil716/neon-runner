@@ -125,6 +125,7 @@ let coinSpawnCooldown, coinGroupPlan;
 let rafId = null;
 let lavaTime = 0;
 let magnetTimer = 0, doubleTimer = 0, shieldTimer = 0;
+let gameStartGracePeriod = 0; // seconds — player invulnerable just after start
 
 const MAGNET_DURATION = 7;
 const DOUBLE_DURATION = 7;
@@ -818,11 +819,17 @@ function getJumpFlightTimeSec() {
 function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
 
 function initGameState() {
-  const baseUnit = Math.min(canvas.clientWidth, canvas.clientHeight || 400);
+  // Defensive: canvas dimensions can be 0 on the very first frame in some
+  // mobile WebViews. Force a resize once more, then fall back to sane defaults.
+  try { resizeCanvas(); } catch {}
+  const cw = Math.max(canvas.clientWidth || 0, 320);
+  const ch = Math.max(canvas.clientHeight || 0, 480);
+
+  const baseUnit = Math.min(cw, ch);
   const playerSize = baseUnit * 0.07;
   player = {
-    x: canvas.clientWidth * 0.16,
-    y: canvas.clientHeight * 0.5 - playerSize / 2,
+    x: cw * 0.16,
+    y: Math.max(20, ch * 0.5 - playerSize / 2),
     width: playerSize, height: playerSize,
     vy: 0, onGround: true, trail: [],
   };
@@ -830,12 +837,12 @@ function initGameState() {
   magnetTimer = 0; doubleTimer = 0; shieldTimer = 0;
 
   const hardMul = settings.hardMode ? 1.4 : 1.0;
-  baseSpeed = canvas.clientWidth * 0.38 * 0.7 * hardMul;
+  baseSpeed = cw * 0.38 * 0.7 * hardMul;
   speedMultiplier = 1;
   maxSpeedMultiplier = 2.1;
   elapsedRunTime = 0;
-  gravity = canvas.clientHeight * 2.2;
-  jumpVelocity = -canvas.clientHeight * 0.5;
+  gravity = ch * 2.2;
+  jumpVelocity = -ch * 0.5;
   isJumpingAllowed = true;
   lastTime = performance.now();
   obstacleSpawnTimer = -2200;
@@ -856,6 +863,7 @@ function startGame() {
   // Mobile WebViews sometimes have wrong size while overlay is closing.
   resizeCanvas();
   initGameState();
+  gameStartGracePeriod = 0.5; // 500ms invulnerability at start
   gameState = "playing";
   closeAllOverlays();
   ensureAudio();
@@ -1069,7 +1077,12 @@ function update(delta) {
   const ph = Math.max(1, player.height - hitPadding * 2);
 
   // Ceiling/ground death
-  if (player.y <= 0 || player.y + player.height >= groundY) {
+  if (gameStartGracePeriod > 0) {
+    gameStartGracePeriod -= dt;
+    // While in grace, clamp player to playable area instead of dying
+    if (player.y < 0) { player.y = 0; player.vy = Math.max(0, player.vy); }
+    if (player.y + player.height > groundY) { player.y = groundY - player.height; player.vy = 0; player.onGround = true; }
+  } else if (player.y <= 0 || player.y + player.height >= groundY) {
     if (shieldTimer > 0) { useShield(); player.y = clamp(player.y, 5, groundY - player.height - 5); player.vy = jumpVelocity * 0.5; }
     else { triggerGameOver(); return; }
   }
