@@ -198,12 +198,16 @@ const els = {
    ============================================================ */
 function loadAllProgress() {
   // coins
-  const c = parseInt(localStorage.getItem(KEYS.totalCoins) || "0", 10);
-  totalCoins = Number.isFinite(c) && c > 0 ? c : 0;
+  try {
+    const c = parseInt(localStorage.getItem(KEYS.totalCoins) || "0", 10);
+    totalCoins = Number.isFinite(c) && c > 0 ? c : 0;
+  } catch { totalCoins = 0; }
 
   // high score
-  const hs = parseInt(localStorage.getItem(KEYS.highScore) || "0", 10);
-  highScore = Number.isFinite(hs) && hs > 0 ? hs : 0;
+  try {
+    const hs = parseInt(localStorage.getItem(KEYS.highScore) || "0", 10);
+    highScore = Number.isFinite(hs) && hs > 0 ? hs : 0;
+  } catch { highScore = 0; }
 
   // skins
   try {
@@ -214,7 +218,8 @@ function loadAllProgress() {
     }
   } catch {}
   if (!ownedSkins.includes("default")) ownedSkins.unshift("default");
-  const cur = localStorage.getItem(KEYS.currentSkin);
+  let cur = null;
+  try { cur = localStorage.getItem(KEYS.currentSkin); } catch {}
   currentSkinId = (cur && SKINS.some((s) => s.id === cur)) ? cur : "default";
   currentSkin = SKINS.find((s) => s.id === currentSkinId) || SKINS[0];
 
@@ -621,7 +626,7 @@ function updateAllUI() {
   if (els.menuCoins) els.menuCoins.textContent = String(totalCoins);
   if (els.menuHighScore) els.menuHighScore.textContent = String(highScore);
   if (els.roundCoinsEl) els.roundCoinsEl.textContent = String(roundCoins);
-  if (els.scoreEl) els.scoreEl.textContent = String(Math.floor(score));
+  if (els.scoreEl) els.scoreEl.textContent = String(Math.max(0, Math.floor(score)));
   if (els.sfxToggle) els.sfxToggle.checked = settings.sfx;
   if (els.musicToggle) els.musicToggle.checked = settings.music;
   if (els.vibroToggle) els.vibroToggle.checked = settings.vibro;
@@ -847,6 +852,9 @@ function initGameState() {
 }
 
 function startGame() {
+  // Make sure canvas dimensions are accurate before initing player.
+  // Mobile WebViews sometimes have wrong size while overlay is closing.
+  resizeCanvas();
   initGameState();
   gameState = "playing";
   closeAllOverlays();
@@ -1052,7 +1060,7 @@ function update(delta) {
   // Score
   const hardScoreMul = settings.hardMode ? 1.6 : 1.0;
   score += dt * 10 * speedMultiplier * hardScoreMul;
-  if (els.scoreEl) els.scoreEl.textContent = Math.floor(score).toString();
+  if (els.scoreEl) els.scoreEl.textContent = Math.max(0, Math.floor(score)).toString();
 
   // Hitbox
   const hitPadding = Math.max(5, Math.min(10, player.width * 0.14));
@@ -1831,9 +1839,20 @@ function bindUiEvents() {
    ============================================================ */
 async function boot() {
   loadAllProgress();
-  resizeCanvas();
   bindUiEvents();
   updateAllUI();
+
+  // Try to lock screen orientation (Android Chrome/WebView only)
+  try {
+    if (screen.orientation && screen.orientation.lock) {
+      screen.orientation.lock("portrait").catch(() => {});
+    }
+  } catch {}
+
+  // Wait two animation frames so CSS layout is fully computed before
+  // we measure canvas. Mobile WebViews otherwise return 0×0 on first paint.
+  await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+  resizeCanvas();
 
   // first-time tutorial
   let tutorialSeen = false;
@@ -1844,13 +1863,28 @@ async function boot() {
     showOverlay(els.mainMenu);
   }
 
-  // run particle/render single frame so menu has nice background
+  // Init game state and render one frame so the canvas isn't blank
   initGameState();
   render();
 
-  // start a passive raf loop so menu animates particles slowly
+  // Start a passive raf loop so menu still animates / canvas stays alive
   if (rafId !== null) cancelAnimationFrame(rafId);
   rafId = requestAnimationFrame(gameLoop);
+
+  // After 250ms: re-measure canvas (gesture bar / status bar settled)
+  setTimeout(() => {
+    try { resizeCanvas(); initGameState(); render(); } catch {}
+  }, 250);
+
+  // ResizeObserver as ultimate safety net
+  try {
+    if (typeof ResizeObserver !== "undefined") {
+      const ro = new ResizeObserver(() => {
+        try { resizeCanvas(); if (gameState !== "playing") { initGameState(); render(); } } catch {}
+      });
+      ro.observe(canvas);
+    }
+  } catch {}
 
   // network init (non-blocking)
   initUserData().catch(() => {});

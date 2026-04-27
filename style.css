@@ -1588,3 +1588,146 @@ body {
 .bank-name { text-align: center; font-weight: 700; color: #e6f7ff; font-size: 14px; }
 .bank-coins { text-align: center; color: #ffd700; font-weight: 600; font-size: 13px; margin: 4px 0 6px; }
 .bank-badge { text-align: center; font-size: 10px; letter-spacing: 1px; color: #ff4ee9; margin-bottom: 8px; text-transform: uppercase; }
+
+/* ==========================================================
+   v4 MOBILE FIXES: scrollable overlays, safe-areas, big tap targets
+   ========================================================== */
+
+/* All overlays: clip to viewport with safe-area, allow scrolling inside */
+.overlay {
+  padding:
+    calc(env(safe-area-inset-top, 0px) + 12px)
+    calc(env(safe-area-inset-right, 0px) + 12px)
+    calc(env(safe-area-inset-bottom, 0px) + 12px)
+    calc(env(safe-area-inset-left, 0px) + 12px);
+  box-sizing: border-box;
+  overflow: hidden;
+}
+.overlay-content {
+  max-height: 100%;
+  max-width: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  width: min(420px, 100%);
+  box-sizing: border-box;
+}
+
+/* Header padding for status bar */
+@media (max-width: 720px) {
+  .game-header {
+    padding-top: calc(env(safe-area-inset-top, 0px) + 6px) !important;
+  }
+}
+
+/* Bigger tap targets for icon buttons on mobile */
+.icon-button, .bank-button {
+  min-width: 38px;
+  min-height: 38px;
+  touch-action: manipulation;
+}
+.btn-primary, .btn-ghost, .btn-pulse, .ach-claim-btn, .skin-btn {
+  touch-action: manipulation;
+  min-height: 40px;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Fix tutorial list overflow */
+.tutorial-list {
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+/* Float notice safe-area */
+.float-notice {
+  top: calc(env(safe-area-inset-top, 0px) + 60px);
+}
+
+/* Power-up HUD safe-area */
+.powerup-hud {
+  top: calc(env(safe-area-inset-top, 0px) + 60px);
+  left: calc(env(safe-area-inset-left, 0px) + 12px);
+}
+
+/* Achievements list constrained scroll */
+.achievements-list {
+  max-height: 60vh;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+/* Shop grid mobile layout */
+.shop-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 10px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+/* Bank grid mobile layout */
+.bank-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+/* Visible focus for buttons (accessibility) */
+.icon-button:focus-visible, .btn-primary:focus-visible, .btn-ghost:focus-visible {
+  outline: 2px solid #54ffff;
+  outline-offset: 2px;
+}
+
+/* Disable double-tap zoom on entire game shell */
+.game-shell, .game-shell * {
+  -webkit-touch-callout: none;
+}
+
+/* ==========================================================
+   v4 CRITICAL FIX: на мобиле в портрете убираем 16:9 рамку,
+   игра занимает весь экран. Иначе оверлеи обрезаются по полоске.
+   ========================================================== */
+@media (max-width: 720px), (orientation: portrait) {
+  html, body, .page-wrapper {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+  }
+  .page-wrapper {
+    padding: 0;
+  }
+  .game-shell {
+    aspect-ratio: auto;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    border-radius: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .game-main {
+    flex: 1;
+    border-radius: 0;
+    min-height: 0; /* allow flex child to shrink */
+  }
+  .game-header {
+    flex-shrink: 0;
+    padding-top: calc(env(safe-area-inset-top, 0px) + 6px);
+    padding-left: calc(env(safe-area-inset-left, 0px) + 6px);
+    padding-right: calc(env(safe-area-inset-right, 0px) + 6px);
+  }
+}
+
+/* Make sure overlay content uses safe-area on bottom (gesture bar) */
+@media (max-width: 720px), (orientation: portrait) {
+  .overlay-content {
+    margin-bottom: env(safe-area-inset-bottom, 0px);
+  }
+}
