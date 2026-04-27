@@ -677,26 +677,68 @@ function renderAchievements() {
   if (!els.achievementsList) return;
   els.achievementsList.innerHTML = "";
   for (const a of ACHIEVEMENTS) {
-    const cur = Math.min(getStatValue(a.stat), a.goal);
+    const cur  = Math.min(getStatValue(a.stat), a.goal);
     const state = achievementsState[a.id] || { claimed: false };
     const ready = cur >= a.goal && !state.claimed;
-    const done = state.claimed;
+    const done  = state.claimed;
+    const pct   = Math.round((cur / a.goal) * 100);
+
     const card = document.createElement("div");
     card.className = "ach-card" + (done ? " ach-card--done" : "") + (ready ? " ach-card--ready" : "");
-    const pct = Math.round((cur / a.goal) * 100);
-    card.innerHTML = `
-      <div class="ach-icon">${a.icon}</div>
-      <div class="ach-info">
-        <div class="ach-name">${escapeHtml(a.name)}</div>
-        <div class="ach-desc">${escapeHtml(a.desc)} (${cur}/${a.goal})</div>
-        <div class="ach-progress"><div class="ach-progress__bar" style="width:${pct}%"></div></div>
-      </div>
-      ${done
-        ? `<div class="ach-reward">✅ +${a.reward}</div>`
-        : ready
-          ? `<button class="ach-claim-btn" data-claim="${a.id}">+${a.reward} 🟡</button>`
-          : `<div class="ach-reward">+${a.reward} 🟡</div>`}
-    `;
+
+    const icon = document.createElement("div");
+    icon.className = "ach-icon";
+    icon.textContent = a.icon;
+
+    const info = document.createElement("div");
+    info.className = "ach-info";
+
+    const name = document.createElement("div");
+    name.className = "ach-name";
+    name.textContent = a.name;
+
+    const desc = document.createElement("div");
+    desc.className = "ach-desc";
+    desc.textContent = `${a.desc} (${cur}/${a.goal})`;
+
+    const prog = document.createElement("div");
+    prog.className = "ach-progress";
+    const progBar = document.createElement("div");
+    progBar.className = "ach-progress__bar";
+    progBar.style.width = pct + "%";
+    prog.appendChild(progBar);
+
+    info.appendChild(name);
+    info.appendChild(desc);
+    info.appendChild(prog);
+
+    card.appendChild(icon);
+    card.appendChild(info);
+
+    if (done) {
+      const r = document.createElement("div");
+      r.className = "ach-reward";
+      r.textContent = `✅ +${a.reward}`;
+      card.appendChild(r);
+    } else if (ready) {
+      const btn = document.createElement("button");
+      btn.className = "ach-claim-btn";
+      btn.type = "button";
+      btn.textContent = `+${a.reward} 🟡`;
+      btn.style.touchAction = "manipulation";
+      btn.style.cursor = "pointer";
+      btn.addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        claimAchievement(a.id);
+      });
+      card.appendChild(btn);
+    } else {
+      const r = document.createElement("div");
+      r.className = "ach-reward";
+      r.textContent = `+${a.reward} 🟡`;
+      card.appendChild(r);
+    }
+
     els.achievementsList.appendChild(card);
   }
 }
@@ -1721,14 +1763,7 @@ function bindUiEvents() {
   $("leaderboardButton")?.addEventListener("click", () => { fetchLeaderboard(); showOverlay(els.leaderboard); sfx("click"); });
   $("achievementsButton")?.addEventListener("click", () => { renderAchievements(); showOverlay(els.achievements); sfx("click"); });
 
-  // Click delegation for achievement claim buttons (rendered dynamically)
-  els.achievementsList?.addEventListener("click", (e) => {
-    const btn = e.target.closest && e.target.closest("[data-claim]");
-    if (btn) {
-      const id = btn.getAttribute("data-claim");
-      claimAchievement(id);
-    }
-  });
+
   $("settingsButton")?.addEventListener("click", () => { showOverlay(els.settings); sfx("click"); });
 
   // main menu
