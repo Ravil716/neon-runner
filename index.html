@@ -6,30 +6,23 @@
     <title>Neon Runner</title>
     <link rel="stylesheet" href="style.css" />
 
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-    // Сообщаем Телеграму, что приложение готово и его нужно развернуть
-    window.Telegram.WebApp.ready();
-    window.Telegram.WebApp.expand();
-    
-    // Покрасим шапку Телеграма в черный цвет, чтобы сливалась с игрой
-    window.Telegram.WebApp.setHeaderColor('#000000'); 
-    window.Telegram.WebApp.setBackgroundColor('#000000');
-</script>
-<style>
-    /* Убираем скролл и выделение текста для телефонов */
-    body {
-        overflow: hidden; 
-        user-select: none;
-        -webkit-user-select: none;
-        touch-action: none;
-    }
-    #game-container {
-        touch-action: none;
-    }
-</style>
-
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+      // Telegram WebApp init (silently no-ops outside Telegram)
+      try {
+        if (window.Telegram && window.Telegram.WebApp) {
+          window.Telegram.WebApp.ready();
+          window.Telegram.WebApp.expand();
+          window.Telegram.WebApp.setHeaderColor('#000000');
+          window.Telegram.WebApp.setBackgroundColor('#000000');
+        }
+      } catch (e) { /* ignore */ }
+    </script>
+    <style>
+      body { overflow: hidden; user-select: none; -webkit-user-select: none; touch-action: none; }
+      #game-container { touch-action: none; }
+    </style>
   </head>
   <body>
     <div class="page-wrapper">
@@ -45,94 +38,195 @@
               <span class="coin-icon" aria-hidden="true"></span>
               <span id="coinValue">0</span>
             </div>
-            <button id="bankButton" class="bank-button" type="button" title="Купить монеты">
-              +
-            </button>
-            <button id="shopButton" class="icon-button" type="button" title="Магазин скинов">
-              🛒
-            </button>
-          <button id="leaderboardButton" class="icon-button" type="button" title="Leaderboard">
-            🏆
-          </button>
+            <button id="bankButton" class="bank-button" type="button" title="Купить монеты">+</button>
+            <button id="shopButton" class="icon-button" type="button" title="Магазин скинов">🛒</button>
+            <button id="leaderboardButton" class="icon-button" type="button" title="Лидерборд">🏆</button>
+            <button id="achievementsButton" class="icon-button" type="button" title="Ачивки">🏅</button>
+            <button id="settingsButton" class="icon-button" type="button" title="Настройки">⚙️</button>
+            <button id="pauseButton" class="icon-button" type="button" title="Пауза">⏸</button>
+          </div>
         </header>
 
         <main class="game-main">
           <canvas id="gameCanvas"></canvas>
 
+          <!-- Power-up timer indicators -->
+          <div id="powerupHud" class="powerup-hud" aria-hidden="true">
+            <div class="pu-chip pu-chip--magnet hidden" data-pu="magnet"><span class="pu-icon">🧲</span><span class="pu-time">0</span></div>
+            <div class="pu-chip pu-chip--double hidden" data-pu="double"><span class="pu-icon">×2</span><span class="pu-time">0</span></div>
+            <div class="pu-chip pu-chip--shield hidden" data-pu="shield"><span class="pu-icon">🛡</span><span class="pu-time">0</span></div>
+          </div>
+
+          <!-- Floating coin gain notifications -->
+          <div id="floatNotice" class="float-notice"></div>
+
+          <!-- MAIN MENU -->
+          <div id="mainMenuOverlay" class="overlay">
+            <div class="overlay-content menu-content">
+              <h2 class="menu-title">Neon Runner</h2>
+              <p class="menu-tagline">Прыгай. Собирай. Выживай.</p>
+              <div class="menu-stats">
+                <div class="menu-stat">
+                  <div class="menu-stat__label">Рекорд</div>
+                  <div class="menu-stat__value" id="menuHighScore">0</div>
+                </div>
+                <div class="menu-stat">
+                  <div class="menu-stat__label">Монеты</div>
+                  <div class="menu-stat__value" id="menuCoins">0</div>
+                </div>
+              </div>
+              <button id="playButton" class="btn-primary">Играть</button>
+              <div class="menu-row">
+                <button id="menuShopButton" class="btn-ghost">🛒 Магазин</button>
+                <button id="menuLeaderboardButton" class="btn-ghost">🏆 Топ</button>
+              </div>
+              <div class="menu-row">
+                <button id="menuAchievementsButton" class="btn-ghost">🏅 Ачивки</button>
+                <button id="menuSettingsButton" class="btn-ghost">⚙️ Настройки</button>
+              </div>
+              <button id="menuDailyButton" class="btn-pulse">🎁 Ежедневная награда</button>
+            </div>
+          </div>
+
+          <!-- PAUSE -->
+          <div id="pauseOverlay" class="overlay hidden">
+            <div class="overlay-content">
+              <h2>Пауза</h2>
+              <p class="hint">Игра приостановлена</p>
+              <button id="resumeButton" class="btn-primary">Продолжить</button>
+              <div class="menu-row">
+                <button id="pauseMenuButton" class="btn-ghost">В меню</button>
+                <button id="pauseRestartButton" class="btn-ghost">Заново</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- GAME OVER -->
           <div id="gameOverOverlay" class="overlay hidden">
             <div class="overlay-content">
               <h2>Game Over</h2>
-              <p class="final-score">
-                Ваш счёт: <span id="finalScoreValue">0</span>
-              </p>
-              <p class="final-coins">
-                Собрано за раунд: <span id="roundCoinsValue">0</span>
-              </p>
-              <p class="final-coins">
-                Всего монет: <span id="totalCoinsValue">0</span>
-              </p>
+              <p class="final-score">Ваш счёт: <span id="finalScoreValue">0</span></p>
+              <p class="final-coins">Собрано за раунд: <span id="roundCoinsValue">0</span></p>
+              <p class="final-coins">Всего монет: <span id="totalCoinsValue">0</span></p>
+              <p class="final-coins" id="newRecordLine" style="display:none">🎉 Новый рекорд!</p>
               <button id="restartButton" class="btn-primary">Restart</button>
+              <div class="menu-row">
+                <button id="gameOverMenuButton" class="btn-ghost">В меню</button>
+                <button id="gameOverShopButton" class="btn-ghost">🛒 Магазин</button>
+              </div>
               <p class="hint">Нажмите пробел или тапните, чтобы прыгать</p>
             </div>
           </div>
 
+          <!-- SHOP -->
           <div id="shopOverlay" class="overlay hidden">
             <div class="overlay-content shop-content">
               <div class="shop-header-row">
                 <h2>Магазин скинов</h2>
-                <button id="shopCloseButton" class="icon-button icon-button--ghost" type="button" aria-label="Закрыть магазин">
-                  ✕
-                </button>
+                <button id="shopCloseButton" class="icon-button icon-button--ghost" type="button" aria-label="Закрыть">✕</button>
               </div>
-              <p class="shop-subtitle">
-                Тратьте неоновые монеты на уникальные облики куба
-              </p>
+              <p class="shop-subtitle">Тратьте неоновые монеты на уникальные облики</p>
               <div id="shopGrid" class="shop-grid"></div>
             </div>
           </div>
 
+          <!-- BANK -->
           <div id="bankOverlay" class="overlay hidden">
             <div class="overlay-content bank-content">
               <div class="shop-header-row">
                 <h2>Bank</h2>
-                <button id="bankCloseButton" class="icon-button icon-button--ghost" type="button" aria-label="Закрыть банк">
-                  ✕
-                </button>
+                <button id="bankCloseButton" class="icon-button icon-button--ghost" type="button" aria-label="Закрыть">✕</button>
               </div>
-              <p class="shop-subtitle">
-                Купите монеты за Telegram Stars ⭐
-              </p>
+              <p class="shop-subtitle" id="bankSubtitle">Купите монеты</p>
               <div id="bankGrid" class="bank-grid"></div>
             </div>
           </div>
 
-          <div id="tapHint" class="tap-hint">
-            Нажмите пробел или тапните, чтобы начать
-          </div>
-
+          <!-- LEADERBOARD -->
           <div id="leaderboardOverlay" class="overlay hidden">
             <div class="overlay-content leaderboard-content">
               <div class="shop-header-row">
                 <h2>Leaderboard</h2>
-                <button id="leaderboardCloseButton" class="icon-button icon-button--ghost" type="button" aria-label="Закрыть лидерборд">
-                  ✕
-                </button>
+                <button id="leaderboardCloseButton" class="icon-button icon-button--ghost" type="button" aria-label="Закрыть">✕</button>
               </div>
               <div class="leaderboard-container">
                 <table class="leaderboard-table">
                   <thead>
-                    <tr>
-                      <th>Place</th>
-                      <th>Username</th>
-                      <th>Score</th>
-                    </tr>
+                    <tr><th>#</th><th>Имя</th><th>Score</th></tr>
                   </thead>
-                  <tbody id="leaderboardBody">
-                    <!-- Will be populated by JS -->
-                  </tbody>
+                  <tbody id="leaderboardBody"></tbody>
                 </table>
                 <div class="loading-indicator" id="leaderboardLoading">Loading...</div>
               </div>
+            </div>
+          </div>
+
+          <!-- SETTINGS -->
+          <div id="settingsOverlay" class="overlay hidden">
+            <div class="overlay-content settings-content">
+              <div class="shop-header-row">
+                <h2>Настройки</h2>
+                <button id="settingsCloseButton" class="icon-button icon-button--ghost" type="button" aria-label="Закрыть">✕</button>
+              </div>
+              <div class="settings-row">
+                <label for="sfxToggle">Звуковые эффекты</label>
+                <input type="checkbox" id="sfxToggle" class="toggle" checked />
+              </div>
+              <div class="settings-row">
+                <label for="musicToggle">Музыка</label>
+                <input type="checkbox" id="musicToggle" class="toggle" checked />
+              </div>
+              <div class="settings-row">
+                <label for="vibroToggle">Вибрация</label>
+                <input type="checkbox" id="vibroToggle" class="toggle" checked />
+              </div>
+              <div class="settings-row">
+                <label for="hardModeToggle">Хардкор-режим</label>
+                <input type="checkbox" id="hardModeToggle" class="toggle" />
+              </div>
+              <p class="hint">Хардкор: больше скорость, ×3 монет</p>
+              <button id="resetProgressButton" class="btn-ghost btn-danger">Сбросить прогресс</button>
+            </div>
+          </div>
+
+          <!-- ACHIEVEMENTS -->
+          <div id="achievementsOverlay" class="overlay hidden">
+            <div class="overlay-content achievements-content">
+              <div class="shop-header-row">
+                <h2>Ачивки</h2>
+                <button id="achievementsCloseButton" class="icon-button icon-button--ghost" type="button" aria-label="Закрыть">✕</button>
+              </div>
+              <p class="shop-subtitle">Получай монеты за достижения</p>
+              <div id="achievementsList" class="achievements-list"></div>
+            </div>
+          </div>
+
+          <!-- DAILY REWARD -->
+          <div id="dailyOverlay" class="overlay hidden">
+            <div class="overlay-content daily-content">
+              <div class="shop-header-row">
+                <h2>Ежедневная награда</h2>
+                <button id="dailyCloseButton" class="icon-button icon-button--ghost" type="button" aria-label="Закрыть">✕</button>
+              </div>
+              <p class="shop-subtitle" id="dailyStreakLabel">Заходи каждый день — получай больше</p>
+              <div id="dailyGrid" class="daily-grid"></div>
+              <button id="claimDailyButton" class="btn-primary">Забрать</button>
+            </div>
+          </div>
+
+          <!-- TUTORIAL -->
+          <div id="tutorialOverlay" class="overlay hidden">
+            <div class="overlay-content">
+              <h2>Как играть</h2>
+              <ul class="tutorial-list">
+                <li>👆 <b>Тап</b> или <b>Пробел</b> — прыжок</li>
+                <li>🟡 Собирай <b>монеты</b> — открывай новые скины</li>
+                <li>🧲 Магнит — притягивает монеты</li>
+                <li>×2 — двойные монеты</li>
+                <li>🛡 Щит — спасает от одного удара</li>
+                <li>🦠 Не врезайся в вирусы и колонны</li>
+              </ul>
+              <button id="tutorialCloseButton" class="btn-primary">Понятно!</button>
             </div>
           </div>
         </main>
