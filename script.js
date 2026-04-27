@@ -1830,6 +1830,7 @@ function bindUiEvents() {
   $("menuLeaderboardButton")?.addEventListener("click", () => { fetchLeaderboard(); showOverlay(els.leaderboard); sfx("click"); });
   $("menuAchievementsButton")?.addEventListener("click", () => { renderAchievements(); showOverlay(els.achievements); sfx("click"); });
   $("menuSettingsButton")?.addEventListener("click", () => { showOverlay(els.settings); sfx("click"); });
+  $("menuBankButton")?.addEventListener("click", () => { renderBank(); showOverlay(els.bank); sfx("click"); });
   $("menuDailyButton")?.addEventListener("click", () => { renderDaily(); showOverlay(els.daily); sfx("click"); });
 
   // pause overlay

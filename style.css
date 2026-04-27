@@ -1930,3 +1930,167 @@ body {
   z-index: 8;
   pointer-events: none;
 }
+
+/* ==========================================================
+   v9 LANDSCAPE: serious shop / menu / overlays redesign
+   ========================================================== */
+
+/* Bank button — yellow/orange highlight to distinguish from regular ghost */
+.btn-bank {
+  display: block;
+  width: 100%;
+  padding: 11px;
+  margin-top: 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 215, 0, 0.55);
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.18), rgba(255, 140, 0, 0.18));
+  color: #ffe680;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  touch-action: manipulation;
+  min-height: 40px;
+}
+.btn-bank:hover { background: linear-gradient(135deg, rgba(255, 215, 0, 0.3), rgba(255, 140, 0, 0.3)); }
+.btn-bank:active { transform: scale(0.98); }
+
+/* ===== LANDSCAPE PHONE LAYOUT (height < 600px) — radical redesign ===== */
+@media (orientation: landscape) and (max-height: 600px),
+       (orientation: landscape) and (max-width: 1100px) {
+
+  /* Overlay content wider on landscape — use available width */
+  .overlay-content {
+    width: min(680px, 95%);
+    max-width: 95%;
+    padding: 14px 18px;
+    max-height: 92%;
+  }
+
+  /* Menu: 2-column grid for landscape (left = stats + play, right = buttons) */
+  .menu-content {
+    padding: 14px 18px;
+  }
+  .menu-title {
+    font-size: 22px;
+    margin: 0 0 4px;
+  }
+  .menu-tagline {
+    font-size: 11px;
+    margin-bottom: 10px;
+  }
+  .menu-stats {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .menu-stat { padding: 6px 4px; }
+  .menu-stat__label { font-size: 9px; }
+  .menu-stat__value { font-size: 16px; }
+  #playButton {
+    padding: 10px 14px;
+    font-size: 16px;
+    margin-bottom: 8px;
+  }
+  .menu-row {
+    gap: 6px;
+    margin-top: 6px;
+  }
+  .menu-row .btn-ghost {
+    font-size: 12px;
+    padding: 7px 10px;
+    min-height: 34px;
+  }
+  .btn-bank, .btn-pulse {
+    margin-top: 6px;
+    padding: 8px;
+    font-size: 13px;
+    min-height: 36px;
+  }
+
+  /* Shop grid: more columns, smaller cards */
+  .shop-grid {
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 8px;
+    max-height: 70vh;
+  }
+  .skin-card {
+    padding: 8px;
+  }
+  .skin-preview {
+    width: 56px;
+    height: 56px;
+    margin: 0 auto 6px;
+  }
+  .skin-name { font-size: 11px; margin-bottom: 2px; }
+  .skin-badge { font-size: 8px; margin-bottom: 4px; letter-spacing: 0.5px; }
+  .skin-btn {
+    font-size: 10px;
+    padding: 6px 4px;
+    line-height: 1.2;
+    min-height: 32px;
+    min-width: 0;
+    width: 100%;
+  }
+
+  /* Bank grid: side-by-side cards, more compact */
+  .bank-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    max-height: 70vh;
+  }
+  .bank-card { padding: 8px; }
+  .bank-icon { font-size: 28px; margin-bottom: 4px; }
+  .bank-name { font-size: 11px; }
+  .bank-coins { font-size: 11px; margin: 2px 0 4px; }
+  .bank-badge { font-size: 8px; margin-bottom: 4px; }
+  .bank-card .btn-primary {
+    font-size: 12px;
+    padding: 6px;
+    min-height: 32px;
+  }
+
+  /* Achievements: tighter cards */
+  .achievements-list { max-height: 70vh; gap: 6px; }
+  .ach-card {
+    grid-template-columns: 32px 1fr auto;
+    gap: 8px;
+    padding: 6px 8px;
+  }
+  .ach-icon, .ach-card__icon { font-size: 18px; }
+  .ach-name { font-size: 11px; }
+  .ach-desc { font-size: 10px; margin-top: 0; }
+  .ach-progress { height: 3px; margin-top: 3px; }
+  .ach-claim-btn { font-size: 9px; padding: 4px 8px; }
+  .ach-reward { font-size: 11px; }
+
+  /* Daily reward grid */
+  .daily-grid { gap: 4px; margin: 8px 0; }
+  .daily-day { padding: 6px 2px; font-size: 9px; }
+  .daily-day__num { margin-bottom: 2px; }
+  .daily-day__amt, .daily-day__reward { font-size: 11px; }
+
+  /* Settings rows compact */
+  .settings-row { padding: 6px 4px; }
+  .settings-row label { font-size: 12px; }
+
+  /* Tutorial list compact */
+  .tutorial-list { margin: 8px 0 12px; }
+  .tutorial-list li { padding: 5px 0; font-size: 12px; }
+
+  /* Game Over / Pause sizing */
+  .overlay-content h2 { font-size: 22px; margin: 0 0 8px; }
+  .final-score, .final-coins { font-size: 12px; margin: 4px 0; }
+}
+
+/* ===== LARGE LANDSCAPE (tablet, desktop in horizontal Telegram) ===== */
+@media (orientation: landscape) and (min-height: 600px) and (min-width: 900px) {
+  .shop-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  }
+  .bank-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .overlay-content {
+    width: min(720px, 90%);
+  }
+}
