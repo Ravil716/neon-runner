@@ -7,6 +7,34 @@
 (() => {
 "use strict";
 
+// -----------------------------------------------------------
+// Boot splash control + global error handler
+// Show splash until first successful render. If anything throws
+// during boot, show the error to the user (not blank screen).
+// -----------------------------------------------------------
+function _hideSplash() {
+  try {
+    const el = document.getElementById("bootSplash");
+    if (el) el.classList.add("hidden");
+  } catch {}
+}
+function _showError(msg) {
+  try {
+    const el = document.getElementById("bootError");
+    if (el) {
+      el.classList.remove("hidden");
+      el.textContent = "Ошибка: " + msg + "\n\nПерезапустите игру или напишите автору.";
+    }
+    console.error("Neon Runner boot error:", msg);
+  } catch {}
+}
+window.addEventListener("error", (e) => {
+  _showError((e.error && e.error.stack) || e.message || String(e));
+});
+window.addEventListener("unhandledrejection", (e) => {
+  _showError((e.reason && e.reason.stack) || e.reason || String(e));
+});
+
 /* ============================================================
    1. PLATFORM DETECTION
    ============================================================ */
@@ -1845,12 +1873,24 @@ function bindUiEvents() {
   document.addEventListener("visibilitychange", () => {
     if (document.hidden && gameState === "playing") pauseGame();
   });
+  // Pause when window loses focus (Telegram desktop, Capacitor multi-window)
+  window.addEventListener("blur", () => {
+    if (gameState === "playing") pauseGame();
+  });
 }
 
 /* ============================================================
    23. INITIAL BOOT
    ============================================================ */
 async function boot() {
+  try {
+    return await _bootInner();
+  } catch (e) {
+    _showError(String(e && e.stack || e));
+  }
+}
+
+async function _bootInner() {
   loadAllProgress();
   bindUiEvents();
   updateAllUI();
@@ -1901,6 +1941,9 @@ async function boot() {
 
   // network init (non-blocking)
   initUserData().catch(() => {});
+
+  // All visible — hide splash
+  _hideSplash();
 }
 
 if (document.readyState === "loading") {

@@ -1771,3 +1771,162 @@ body {
     height: 100% !important;
   }
 }
+
+/* ==========================================================
+   v6 RADICAL MOBILE: splash + clean landscape layout
+   ========================================================== */
+
+/* Boot splash — always visible until JS removes it */
+.boot-splash {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #050513, #0d0822, #050513);
+  color: #fff;
+  font-family: system-ui, sans-serif;
+  pointer-events: none;
+}
+.boot-splash.hidden { display: none; }
+.boot-splash__title {
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  background: linear-gradient(90deg, #54ffff, #ff4ee9);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  margin-bottom: 24px;
+  text-align: center;
+}
+.boot-splash__spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(84, 255, 255, 0.2);
+  border-top-color: #54ffff;
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+  margin-bottom: 16px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.boot-splash__hint {
+  font-size: 13px;
+  letter-spacing: 1px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* Visible error display (replaces the empty screen if JS crashes) */
+.boot-error {
+  position: absolute;
+  inset: 0;
+  z-index: 51;
+  background: rgba(20, 0, 0, 0.95);
+  color: #fff;
+  font-family: monospace;
+  font-size: 12px;
+  padding: 20px;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.boot-error.hidden { display: none; }
+
+/* ==========================================================
+   v6 LANDSCAPE-FIRST FOR PHONES — game fills entire screen
+   ========================================================== */
+@media (orientation: landscape) and (max-height: 600px),
+       (orientation: landscape) and (max-width: 1100px) {
+
+  html, body, .page-wrapper {
+    width: 100%; height: 100%;
+    margin: 0; padding: 0;
+    overflow: hidden;
+  }
+  .page-wrapper { padding: 0; }
+
+  .game-shell {
+    aspect-ratio: auto;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    border-radius: 0;
+    padding: 0;
+    background: transparent;
+    box-shadow: none;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Header overlays canvas (no longer pushes it down) */
+  .game-header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 15;
+    margin: 0;
+    padding: 6px 10px;
+    padding-top: calc(env(safe-area-inset-top, 0px) + 6px);
+    padding-left: calc(env(safe-area-inset-left, 0px) + 10px);
+    padding-right: calc(env(safe-area-inset-right, 0px) + 10px);
+    background: linear-gradient(180deg, rgba(4, 8, 18, 0.6), rgba(4, 8, 18, 0));
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    flex-shrink: 0;
+  }
+  .game-title {
+    display: none !important;
+  }
+  .hud-right {
+    width: 100%;
+    flex-wrap: nowrap !important;
+    justify-content: flex-end;
+    gap: 6px;
+    align-items: center;
+  }
+  .score-display, .coin-display {
+    font-size: 11px;
+    padding: 3px 8px;
+  }
+  #scoreValue, #coinValue { font-size: 13px; }
+  .icon-button, .bank-button {
+    min-width: 32px;
+    min-height: 32px;
+    width: 32px;
+    height: 32px;
+    font-size: 13px;
+    padding: 0;
+  }
+
+  .game-main {
+    flex: 1;
+    border-radius: 0;
+    min-height: 0;
+    position: relative;
+  }
+}
+
+/* ==========================================================
+   PORTRAIT MOBILE — already fixed earlier, but add stronger overrides
+   ========================================================== */
+@media (orientation: portrait) and (max-width: 720px) {
+  .game-title { font-size: 14px; }
+}
+
+/* ==========================================================
+   Pause indicator when game is paused (visible)
+   ========================================================== */
+.paused-indicator {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 64px;
+  color: rgba(255, 255, 255, 0.7);
+  z-index: 8;
+  pointer-events: none;
+}
