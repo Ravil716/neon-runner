@@ -1300,7 +1300,11 @@ function drawBackground() {
       { p: (0.77 + offset) % 1, c: "#ffea00" },
     ];
     stops.sort((a, b) => a.p - b.p);
-    for (const s of stops) grad.addColorStop(s.p, s.c);
+    for (const s of stops) {
+      // Clamp to [0, 1] to avoid IndexSizeError from float precision (e.g. -0.003)
+      const pos = Math.min(1, Math.max(0, s.p));
+      grad.addColorStop(pos, s.c);
+    }
     ctx.save();
     ctx.shadowColor = "rgba(255, 110, 20, 1)";
     ctx.shadowBlur = 38;
@@ -1617,17 +1621,22 @@ function drawCoinParticles() {
   ctx.shadowBlur = 0;
 }
 
+function _safeDraw(name, fn) {
+  try { fn(); } catch (e) {
+    if (typeof console !== "undefined") console.warn("draw error in", name, ":", e);
+  }
+}
 function render() {
-  ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
-  drawBackground();
-  drawTrail();
-  drawPlayer();
-  drawObstacles();
-  drawViruses();
-  drawPowerUps();
-  drawParticles();
-  drawCoins();
-  drawCoinParticles();
+  try { ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight); } catch {}
+  _safeDraw("background", drawBackground);
+  _safeDraw("trail", drawTrail);
+  _safeDraw("player", drawPlayer);
+  _safeDraw("obstacles", drawObstacles);
+  _safeDraw("viruses", drawViruses);
+  _safeDraw("powerups", drawPowerUps);
+  _safeDraw("particles", drawParticles);
+  _safeDraw("coins", drawCoins);
+  _safeDraw("coinparticles", drawCoinParticles);
 }
 
 function gameLoop(timestamp) {
@@ -1894,13 +1903,6 @@ async function _bootInner() {
   loadAllProgress();
   bindUiEvents();
   updateAllUI();
-
-  // Try to lock screen orientation (Android Chrome/WebView only)
-  try {
-    if (screen.orientation && screen.orientation.lock) {
-      screen.orientation.lock("portrait").catch(() => {});
-    }
-  } catch {}
 
   // Wait two animation frames so CSS layout is fully computed before
   // we measure canvas. Mobile WebViews otherwise return 0×0 on first paint.
