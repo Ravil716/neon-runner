@@ -1720,6 +1720,15 @@ function bindUiEvents() {
   $("bankButton")?.addEventListener("click", () => { renderBank(); showOverlay(els.bank); sfx("click"); });
   $("leaderboardButton")?.addEventListener("click", () => { fetchLeaderboard(); showOverlay(els.leaderboard); sfx("click"); });
   $("achievementsButton")?.addEventListener("click", () => { renderAchievements(); showOverlay(els.achievements); sfx("click"); });
+
+  // Click delegation for achievement claim buttons (rendered dynamically)
+  els.achievementsList?.addEventListener("click", (e) => {
+    const btn = e.target.closest && e.target.closest("[data-claim]");
+    if (btn) {
+      const id = btn.getAttribute("data-claim");
+      claimAchievement(id);
+    }
+  });
   $("settingsButton")?.addEventListener("click", () => { showOverlay(els.settings); sfx("click"); });
 
   // main menu
